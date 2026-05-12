@@ -1,0 +1,1534 @@
+<!--
+INSTRUCCIONES PARA SUBIR A GITHUB PAGES:
+1. Ve a github.com → New repository → nombre: atlas-poder-lujo → Public → Create
+2. Sube este archivo renombrado como "index.html"
+3. Settings → Pages → Branch: main → /root → Save
+4. Tu URL permanente será: https://TU_USUARIO.github.io/atlas-poder-lujo
+ALTERNATIVA RÁPIDA SIN CUENTA:
+- Abre https://netlify.com/drop → arrastra este archivo → URL instantánea en segundos
+- Abre https://tiiny.host → sube el archivo → URL gratuita por 14 días
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0f16" id="theme-meta">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas Relacional del Poder: Lujo Femenino, Élites e Influencia | Sharon Obando Delgado</title>
+<meta name="description" content="Atlas relacional interactivo de redes de poder en el lujo femenino colombiano. Johanna Ortiz, Silvia Tcherassi y Francesca Miranda. Investigación de Sharon Obando Delgado, The Fashion Politics.">
+<meta name="author" content="Sharon Obando Delgado">
+<meta name="keywords" content="Sharon Obando Delgado, The Fashion Politics, lujo colombiano, redes de poder, Johanna Ortiz, Silvia Tcherassi, Francesca Miranda, análisis de redes sociales, élites Colombia, moda colombiana, SNA, poder simbólico">
+<meta property="og:title" content="Atlas Relacional del Poder: Lujo Femenino, Élites e Influencia">
+<meta property="og:description" content="Investigación relacional sobre la articulación entre marcas de lujo femenino colombiano y élites económicas, políticas y culturales. Por Sharon Obando Delgado.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Fashion Politics">
+<link rel="canonical" href="https://sharonobando.com/atlas-relacional-poder-lujo-colombiano">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ScholarlyArticle","name":"Atlas Relacional del Poder: Lujo Femenino, Élites e Influencia","author":{"@type":"Person","name":"Sharon Obando Delgado","url":"https://www.linkedin.com/in/sharon-obando-delgado-estratega-en-comunicacion-moda-imagen-poder","email":"sharonobandodelgado@gmail.com"},"publisher":{"@type":"Organization","name":"The Fashion Politics"},"description":"Análisis de redes sociales sobre la articulación entre marcas de lujo femenino colombiano y élites regionales","keywords":"moda lujo Colombia, redes poder, élites, Johanna Ortiz, Silvia Tcherassi, Francesca Miranda, SNA"}
+// ─── THEME TOGGLE ────────────────────────────────────────────────────────────
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  const btn=document.getElementById('theme-btn');
+  const meta=document.getElementById('theme-meta');
+  btn.textContent=isLight?'🌙 Dark':'☀ Claro';
+  btn.style.background=isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.04)';
+  if(meta)meta.setAttribute('content',isLight?'#f5f1eb':'#0a0f16');
+  // Re-render so node text stroke updates immediately
+  if(!compareMode)render(activeFilter);
+  else renderCompare();
+}
+
+// ─── ZOOM CONTROLS ───────────────────────────────────────────────────────────
+function zoomIn(){svg.transition().duration(300).call(zoom.scaleBy,1.4)}
+function zoomOut(){svg.transition().duration(300).call(zoom.scaleBy,0.7)}
+function zoomReset(){
+  const W=gw(),H=gh();
+  svg.transition().duration(500).call(zoom.transform,d3.zoomIdentity.translate(W*.03,H*.03).scale(.86));
+}
+
+// ─── FULLSCREEN ──────────────────────────────────────────────────────────────
+function toggleFullscreen(){
+  const el=document.getElementById('graph-area');
+  const btn=document.getElementById('fs-btn');
+  if(!document.fullscreenElement){
+    (el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen).call(el);
+    if(btn)btn.textContent='✕';
+  } else {
+    (document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen).call(document);
+    if(btn)btn.textContent='⛶';
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  const btn=document.getElementById('fs-btn');
+  if(btn)btn.textContent=document.fullscreenElement?'✕':'⛶';
+});
+
+// ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
+function toggleMobSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sb-overlay');
+  const isOpen=sb.classList.toggle('open');
+  if(ov)ov.classList.toggle('vis',isOpen);
+  document.body.style.overflow=isOpen&&window.innerWidth<=800?'hidden':'';
+}
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js">
+// ─── THEME TOGGLE ────────────────────────────────────────────────────────────
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  const btn=document.getElementById('theme-btn');
+  const meta=document.getElementById('theme-meta');
+  btn.textContent=isLight?'🌙 Dark':'☀ Claro';
+  btn.style.background=isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.04)';
+  if(meta)meta.setAttribute('content',isLight?'#f5f1eb':'#0a0f16');
+  // Re-render so node text stroke updates immediately
+  if(!compareMode)render(activeFilter);
+  else renderCompare();
+}
+
+// ─── ZOOM CONTROLS ───────────────────────────────────────────────────────────
+function zoomIn(){svg.transition().duration(300).call(zoom.scaleBy,1.4)}
+function zoomOut(){svg.transition().duration(300).call(zoom.scaleBy,0.7)}
+function zoomReset(){
+  const W=gw(),H=gh();
+  svg.transition().duration(500).call(zoom.transform,d3.zoomIdentity.translate(W*.03,H*.03).scale(.86));
+}
+
+// ─── FULLSCREEN ──────────────────────────────────────────────────────────────
+function toggleFullscreen(){
+  const el=document.getElementById('graph-area');
+  const btn=document.getElementById('fs-btn');
+  if(!document.fullscreenElement){
+    (el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen).call(el);
+    if(btn)btn.textContent='✕';
+  } else {
+    (document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen).call(document);
+    if(btn)btn.textContent='⛶';
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  const btn=document.getElementById('fs-btn');
+  if(btn)btn.textContent=document.fullscreenElement?'✕':'⛶';
+});
+
+// ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
+function toggleMobSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sb-overlay');
+  const isOpen=sb.classList.toggle('open');
+  if(ov)ov.classList.toggle('vis',isOpen);
+  document.body.style.overflow=isOpen&&window.innerWidth<=800?'hidden':'';
+}
+
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f16;--surface:#0d1520;--surface2:#111c2a;--surface3:#152030;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);--border3:rgba(255,255,255,0.18);
+  --text:#e8e2d8;--muted:rgba(232,226,216,0.58);--muted2:rgba(232,226,216,0.38);--muted3:rgba(232,226,216,0.18);
+  --jo:#2E8B57;--jo2:rgba(46,139,87,0.13);--jo-glow:rgba(46,139,87,0.35);--jo-light:#4CAF82;
+  --st:#7B2D8B;--st2:rgba(123,45,139,0.13);--st-glow:rgba(123,45,139,0.35);--st-light:#9B59B6;
+  --fm:#CC5500;--fm2:rgba(204,85,0,0.13);--fm-glow:rgba(204,85,0,0.35);--fm-light:#E07030;
+  --shared:#FFD700;--shared2:rgba(255,215,0,0.13);--shared-glow:rgba(255,215,0,0.3);
+  --shared-all:#F39C12;--shared-all2:rgba(243,156,18,0.13);
+  --gold:#c9a84c;--gold2:rgba(201,168,76,0.13);--gold3:rgba(201,168,76,0.25);
+  --accent:#c9a84c;
+  --r:4px;--r2:6px;--r3:10px;
+}
+
+/* Base text color inheritance fixes */
+.s-section,.sidebar-scroll,.sidebar{color:var(--text)}
+.leg-name,.leg-sub,.s-title,.node-empty,.metric-val,.metric-lbl,.metric-sub{color:inherit}
+.conn-item,.conn-label,.export-item{color:var(--muted)}
+
+
+header,.controls,.ctrl,.sidebar,.sidebar-scroll,.s-section,.modal,.tooltip,#tt{transition:background .3s,color .3s,border-color .3s !important}
+body.light{
+  --bg:#f5f1eb;--surface:#ede7df;--surface2:#e5ddd4;--surface3:#ddd4c8;
+  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);--border3:rgba(0,0,0,0.21);
+  --text:#18140e;--muted:rgba(24,20,14,0.55);--muted2:rgba(24,20,14,0.32);--muted3:rgba(24,20,14,0.18);
+  --gold:#7a5e1e;--gold2:rgba(122,94,30,0.11);--gold3:rgba(122,94,30,0.2);
+}
+body.light .graph-wrap,.graph-container{background:var(--bg) !important}
+body.light .main{background:var(--bg) !important}
+
+body.light::before{background:
+  radial-gradient(ellipse 90% 70% at 15% 35%,rgba(46,139,87,0.07) 0%,transparent 55%),
+  radial-gradient(ellipse 70% 90% at 75% 65%,rgba(123,45,139,0.07) 0%,transparent 55%),
+  radial-gradient(ellipse 60% 50% at 65% 15%,rgba(204,85,0,0.05) 0%,transparent 50%)}
+body.light header,body.light .controls,body.light .type-bar,body.light .sidebar{background:rgba(245,241,235,0.97)!important}
+/* node text in light mode — handled in NODE & LINK STYLES section */
+body.light .tooltip{background:rgba(237,231,223,0.99)!important;color:var(--text)!important}
+body.light .tooltip .tt-label,body.light .tooltip .tt-row,body.light .tooltip .tt-type,body.light .tooltip .tt-analysis{color:var(--text)!important}
+body.light .tooltip .tt-row strong{color:rgba(24,20,14,0.65)!important}
+body.light .modal{background:var(--surface2)!important;color:var(--text)!important}
+body.light .modal h2,body.light .modal p,body.light .step-text,body.light .last-update{color:var(--text)!important}
+body.light .m-card,body.light .m-full,body.light .node-analysis-box,body.light .exp-item,body.light .contact-link,body.light .u-step,body.light .path-result,body.light .conn-item{background:rgba(0,0,0,0.04)!important;border-color:rgba(0,0,0,0.09)!important;color:var(--text)!important}
+body.light .m-val{color:var(--text)!important}
+body.light .m-lbl{color:var(--muted2)!important}
+body.light .m-sub,body.light .node-empty,body.light .conn-item,body.light .path-result{color:var(--muted)!important}
+body.light .node-name,body.light .node-f span,body.light .node-f strong{color:var(--text)!important}
+body.light .node-analysis-box{color:var(--muted)!important}
+body.light .na-title{color:var(--muted2)!important}
+body.light .exp-item:hover,body.light .contact-link:hover{background:var(--gold2)!important;border-color:rgba(122,94,30,0.3)!important;color:var(--gold)!important}
+body.light .path-select{background:rgba(0,0,0,0.04)!important;color:var(--text)!important;border-color:rgba(0,0,0,0.12)!important}
+body.light .path-select option{background:var(--surface)!important;color:var(--text)!important}
+body.light .s-title{color:rgba(24,20,14,0.4)!important}
+body.light .leg-sub,body.light .leg-name{color:var(--text)!important}
+body.light .h-meta{color:var(--muted)!important}
+body.light .h-brand h1{color:var(--text)!important}
+body.light .pill{color:var(--muted)!important;border-color:rgba(0,0,0,0.12)!important;background:rgba(0,0,0,0.04)!important}
+body.light .pill span{color:var(--text)!important}
+body.light .fbtn,body.light .icon-btn,body.light .type-chip{color:var(--muted)!important;border-color:rgba(0,0,0,0.1)!important}
+body.light .fbtn:hover,body.light .icon-btn:hover,body.light .type-chip:hover{color:var(--text)!important;border-color:rgba(0,0,0,0.22)!important;background:rgba(0,0,0,0.05)!important}
+body.light .fbtn.active{color:var(--text)!important;background:rgba(0,0,0,0.06)!important}
+body.light .sep{background:rgba(0,0,0,0.12)!important}
+body.light .search-wrap{border-color:rgba(0,0,0,0.1)!important;background:rgba(0,0,0,0.03)!important}
+body.light #search{color:var(--text)!important}
+body.light #search::placeholder{color:var(--muted2)!important}
+body.light .ctrl-label{color:rgba(24,20,14,0.35)!important}
+body.light .inst-key,body.light .inst-item{color:rgba(24,20,14,0.35)!important;border-color:rgba(0,0,0,0.12)!important;background:rgba(0,0,0,0.04)!important}
+body.light .z-btn{background:rgba(245,241,235,0.95)!important;color:var(--text)!important;border-color:rgba(0,0,0,0.12)!important}
+body.light .update-badge{color:var(--gold)!important}
+body.light .contact-link svg{color:var(--muted)!important}
+body.light .fl-item{color:var(--muted)!important}
+body.light .conn-type{color:var(--muted2)!important}
+body.light ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15)}
+/* Link/edge color adjustment for light mode */
+body.light svg .link{stroke-opacity:.35!important}
+body.light svg .link.w3{stroke-opacity:.65!important}
+body.light svg .link.w2{stroke-opacity:.45!important}
+body.light svg .link.w1{stroke-opacity:.2!important}
+body.light .node circle{stroke-opacity:.7!important}
+
+/* ── COMPREHENSIVE LIGHT MODE FIXES ── */
+body.light{color:var(--text) !important}
+body.light .sidebar-scroll{background:transparent}
+body.light .s-section{border-color:rgba(0,0,0,0.08) !important;color:var(--text) !important}
+body.light .leg-name{color:var(--text) !important;font-weight:600}
+body.light .leg-sub{color:var(--muted) !important}
+body.light .leg-dot{/* inherits background from inline style */}
+body.light .tipologia-badge{border-color:currentColor !important}
+body.light .tipologia-badge .tipologia-tooltip,body.light .tb .tt-tipo{background:rgba(237,231,223,0.99) !important;color:var(--text) !important;border-color:rgba(0,0,0,0.15) !important}
+body.light .metric-card,body.light .mc{background:rgba(0,0,0,0.04) !important;border-color:rgba(0,0,0,0.09) !important}
+body.light .metric-val,body.light .mv{color:var(--text) !important}
+body.light .metric-label,body.light .ml,body.light .metric-lbl{color:var(--muted2) !important}
+body.light .metric-sub,body.light .msub{color:var(--muted) !important}
+body.light .node-empty,.np-empty{color:var(--muted) !important}
+body.light .node-name,.np-name{color:var(--text) !important}
+body.light .node-role-chip,.np-role,.node-role{/* keeps designer color */}
+body.light .node-field strong,.nf strong{color:rgba(24,20,14,0.55) !important}
+body.light .node-field span,.nf span{color:var(--text) !important}
+body.light .node-analysis-box,.na{background:rgba(0,0,0,0.04) !important;border-color:rgba(0,0,0,0.09) !important;color:var(--muted) !important}
+body.light .na-title,.node-analysis-title{color:var(--muted2) !important}
+body.light .conn-item,.ci{border-color:rgba(0,0,0,0.07) !important;color:var(--muted) !important}
+body.light .conn-label{color:var(--text) !important}
+body.light .conn-type,.ct{color:var(--muted2) !important}
+body.light .export-item,.exp-item,.ei{background:rgba(0,0,0,0.04) !important;border-color:rgba(0,0,0,0.09) !important;color:var(--muted) !important}
+body.light .export-item:hover,.exp-item:hover,.ei:hover{background:var(--gold2) !important;color:var(--gold) !important;border-color:var(--gold3) !important}
+body.light .export-note,.exp-note{color:var(--muted2) !important;background:rgba(0,0,0,0.03) !important;border-color:rgba(0,0,0,0.07) !important}
+body.light .contact-row a,.contact-link{background:rgba(0,0,0,0.04) !important;border-color:rgba(0,0,0,0.09) !important;color:var(--muted) !important}
+body.light .contact-row a:hover,.contact-link:hover{background:var(--gold2) !important;color:var(--gold) !important}
+body.light .update-badge,.upd-badge{background:var(--gold2) !important;border-color:var(--gold3) !important;color:var(--gold) !important}
+body.light .pill{background:rgba(0,0,0,0.05) !important;border-color:rgba(0,0,0,0.12) !important;color:var(--muted) !important}
+body.light .pill b,.pill b{color:var(--text) !important}
+body.light .cmp-btn,.compare-btn{background:rgba(0,0,0,0.05) !important;border-color:rgba(0,0,0,0.14) !important;color:var(--muted) !important}
+body.light .cmp-btn:hover{background:rgba(0,0,0,0.08) !important;color:var(--text) !important}
+body.light .cmp-btn.on,.cmp-btn.active{color:var(--gold) !important;background:var(--gold2) !important;border-color:var(--gold3) !important}
+body.light .cmp-lbl,.compare-label{background:rgba(245,241,235,0.92) !important;color:var(--text) !important;border-color:rgba(0,0,0,0.12) !important}
+body.light .modal-overlay,.ov{/* transparent */}
+body.light .modal{background:var(--surface) !important;border-color:rgba(0,0,0,0.14) !important;color:var(--text) !important}
+body.light .modal h2{color:var(--text) !important}
+body.light .modal p{color:var(--muted) !important}
+body.light .modal code{background:rgba(0,0,0,0.07) !important;color:var(--text) !important;padding:1px 5px;border-radius:3px}
+body.light .step,.update-step,.u-step{background:rgba(0,0,0,0.04) !important;border-color:rgba(0,0,0,0.09) !important}
+body.light .step-num,.sn{background:var(--gold2) !important;border-color:var(--gold3) !important;color:var(--gold) !important}
+body.light .step-text,.st{color:var(--muted) !important}
+body.light .step-text strong,.st strong{color:var(--text) !important}
+body.light .last-update,.lu{color:var(--muted) !important}
+body.light .last-update-dot,.lu-d{background:var(--gold) !important}
+body.light .progress-overlay{background:rgba(245,241,235,0.92) !important}
+body.light .progress-txt{color:var(--text) !important}
+body.light .progress-bar{background:var(--gold) !important}
+body.light .progress-bar-wrap{background:rgba(0,0,0,0.1) !important}
+body.light .inst-item{color:rgba(24,20,14,0.35) !important}
+body.light .inst-key{background:rgba(0,0,0,0.05) !important;border-color:rgba(0,0,0,0.12) !important;color:rgba(24,20,14,0.45) !important}
+body.light .h-sep{opacity:0.25}
+body.light .h-sub a{color:var(--gold) !important}
+body.light .h-sub{color:var(--muted) !important}
+body.light .vsep,.sep{background:rgba(0,0,0,0.12) !important}
+body.light .sw,.search-wrap{background:rgba(0,0,0,0.04) !important;border-color:rgba(0,0,0,0.1) !important}
+body.light #search{color:var(--text) !important}
+body.light #search::placeholder{color:var(--muted2) !important}
+body.light .sw svg{color:var(--muted) !important}
+body.light .fb,.fbtn{color:var(--muted) !important;border-color:rgba(0,0,0,0.1) !important;background:transparent !important}
+body.light .fb:hover{color:var(--text) !important;background:rgba(0,0,0,0.05) !important;border-color:rgba(0,0,0,0.18) !important}
+body.light .fb.on{color:var(--text) !important;background:rgba(0,0,0,0.07) !important}
+body.light .ctrl-lbl{color:rgba(24,20,14,0.35) !important}
+body.light .cmp-half{border-color:rgba(0,0,0,0.1) !important}
+/* Graph canvas light bg */
+body.light #graph,body.light .cmp-half svg{background:transparent !important}
+/* Node text dark in light mode — handled in NODE & LINK STYLES section above */
+/* Links slightly darker in light mode */
+body.light .link{stroke-opacity:0.28 !important}
+body.light .link.w3{stroke-opacity:0.55 !important}
+body.light .link.w2{stroke-opacity:0.38 !important}
+body.light .link.w1{stroke-opacity:0.18 !important}
+/* Tooltip in light */
+body.light #tt{background:rgba(237,231,223,0.99) !important;border-color:rgba(0,0,0,0.13) !important;box-shadow:0 8px 32px rgba(0,0,0,0.18) !important}
+body.light .tt-n,.tt-label{color:var(--text) !important}
+body.light .tt-ty,.tt-type{color:var(--muted) !important}
+body.light .tt-r,.tt-row{color:var(--muted) !important}
+body.light .tt-r strong,.tt-row strong{color:rgba(24,20,14,0.6) !important}
+body.light .tt-ana,.tt-analysis{color:var(--muted) !important;border-color:rgba(0,0,0,0.08) !important}
+.theme-btn{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--muted);font-family:"Syne",sans-serif;font-size:9.5px;cursor:pointer;transition:all .25s;white-space:nowrap;flex-shrink:0;user-select:none}
+body.light .theme-btn{background:rgba(0,0,0,0.04)}
+.theme-btn:hover{border-color:var(--border3);color:var(--text)}
+.zoom-controls{position:absolute;bottom:50px;right:12px;z-index:50;display:flex;flex-direction:column;gap:3px}
+.z-btn{width:32px;height:32px;border-radius:var(--r);border:1px solid var(--border2);background:rgba(13,21,32,0.88);color:var(--text);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;backdrop-filter:blur(12px);user-select:none}
+body.light .z-btn{background:rgba(245,241,235,0.92)}
+.z-btn:hover{border-color:var(--border3);transform:scale(1.05)}
+.mob-sidebar-btn{display:none;align-items:center;justify-content:center;width:34px;height:34px;border-radius:var(--r);border:1px solid var(--border2);background:rgba(255,255,255,0.04);color:var(--text);cursor:pointer;font-size:17px;flex-shrink:0}
+body.light .mob-sidebar-btn{background:rgba(0,0,0,0.04)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:299;backdrop-filter:blur(2px)}
+.sidebar-overlay.vis{display:block}
+@media(max-width:800px){
+  .sidebar{position:fixed!important;right:-285px!important;top:0!important;bottom:0!important;z-index:300!important;transition:right .3s cubic-bezier(.4,0,.2,1)!important;width:280px!important;height:100%!important;border-left:1px solid var(--border2)!important}
+  .sidebar.open{right:0!important;box-shadow:-6px 0 30px rgba(0,0,0,.6)!important}
+  .mob-sidebar-btn{display:flex!important}
+  .type-bar{overflow-x:auto!important;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch}
+  .controls{overflow-x:auto!important;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch}
+  .h-brand h1{font-size:11px!important}
+  .zoom-controls{bottom:60px;right:8px}
+  .inst{display:none!important}
+}
+
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;height:100vh;overflow:hidden;display:flex;flex-direction:column;position:relative}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 90% 70% at 15% 35%,rgba(46,139,87,0.035) 0%,transparent 55%),
+  radial-gradient(ellipse 70% 90% at 75% 65%,rgba(123,45,139,0.035) 0%,transparent 55%),
+  radial-gradient(ellipse 60% 50% at 65% 15%,rgba(204,85,0,0.025) 0%,transparent 50%);
+  pointer-events:none;z-index:0}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.09);border-radius:3px}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--border);background:rgba(10,15,22,0.97);backdrop-filter:blur(24px);z-index:200;flex-shrink:0;position:relative;gap:12px}
+.h-brand{display:flex;flex-direction:column;gap:1px;min-width:0}
+.h-brand h1{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;letter-spacing:0.025em;color:var(--text);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.h-meta{font-size:9.5px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.h-meta a{color:var(--gold);text-decoration:none;transition:opacity .2s}
+.h-meta a:hover{opacity:.75}
+.h-meta-sep{opacity:.3}
+.h-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.pill{background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--muted);letter-spacing:0.04em;white-space:nowrap}
+.pill span{color:var(--text);font-weight:600}
+.update-badge{display:flex;align-items:center;gap:5px;background:var(--gold2);border:1px solid rgba(201,168,76,0.28);border-radius:20px;padding:3px 10px;font-size:9.5px;color:var(--gold);letter-spacing:0.06em;cursor:pointer;transition:all .2s;white-space:nowrap}
+.update-badge:hover{background:var(--gold3)}
+.update-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pdot 2s infinite}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+
+/* ── CONTROLS ── */
+.controls{display:flex;align-items:center;gap:5px;padding:7px 20px;border-bottom:1px solid var(--border);background:rgba(10,15,22,0.93);flex-shrink:0;flex-wrap:wrap;z-index:100;position:relative}
+.ctrl-label{font-size:8.5px;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted2);margin-right:1px;flex-shrink:0}
+.fbtn{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:var(--r);border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:10.5px;cursor:pointer;transition:all .18s;letter-spacing:0.02em;white-space:nowrap}
+.fbtn .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:box-shadow .18s}
+.fbtn:hover{border-color:rgba(255,255,255,0.18);color:var(--text);background:rgba(255,255,255,0.035)}
+.fbtn.active{color:var(--text);background:rgba(255,255,255,0.045)}
+.fbtn.active.all{border-color:rgba(255,255,255,0.22)}
+.fbtn.active.jo{border-color:var(--jo);box-shadow:0 0 8px var(--jo-glow)}.fbtn.active.jo .dot{box-shadow:0 0 6px var(--jo-glow)}
+.fbtn.active.st{border-color:var(--st);box-shadow:0 0 8px var(--st-glow)}.fbtn.active.st .dot{box-shadow:0 0 6px var(--st-glow)}
+.fbtn.active.fm{border-color:var(--fm);box-shadow:0 0 8px var(--fm-glow)}.fbtn.active.fm .dot{box-shadow:0 0 6px var(--fm-glow)}
+.fbtn.active.sh{border-color:var(--shared);box-shadow:0 0 6px var(--shared-glow)}
+.fbtn.active.col{border-color:var(--jo);box-shadow:0 0 6px var(--jo-glow)}
+.sep{width:1px;height:16px;background:var(--border2);margin:0 2px;flex-shrink:0}
+.search-wrap{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--r);padding:4px 10px;margin-left:auto;transition:border-color .2s}
+.search-wrap:focus-within{border-color:var(--border3)}
+.search-wrap svg{opacity:.3;flex-shrink:0}
+#search{background:none;border:none;color:var(--text);font-family:'Syne',sans-serif;font-size:10.5px;outline:none;width:140px}
+#search::placeholder{color:var(--muted2)}
+.icon-btn{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:var(--r);border:1px solid var(--border2);background:rgba(255,255,255,0.035);color:var(--muted);font-family:'Syne',sans-serif;font-size:10px;cursor:pointer;transition:all .18s;letter-spacing:0.03em}
+.icon-btn:hover{background:rgba(255,255,255,0.07);color:var(--text);border-color:var(--border3)}
+.icon-btn.active{border-color:var(--gold);color:var(--gold);background:var(--gold2)}
+
+/* ── NODE TYPE FILTER ── */
+.type-bar{display:flex;align-items:center;gap:4px;padding:5px 20px;border-bottom:1px solid var(--border);background:rgba(10,15,22,0.88);flex-shrink:0;flex-wrap:wrap;z-index:99;position:relative}
+.type-chip{display:flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted2);font-family:'Syne',sans-serif;font-size:9px;cursor:pointer;transition:all .15s;white-space:nowrap;letter-spacing:0.04em}
+.type-chip:hover{border-color:var(--border3);color:var(--muted)}
+.type-chip.active{background:rgba(255,255,255,0.05);border-color:var(--border3);color:var(--text)}
+.type-chip .tc-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+/* ── MAIN ── */
+.main{display:flex;flex:1;overflow:hidden;position:relative;z-index:1}
+.graph-area{flex:1;position:relative;display:flex}
+#graph{flex:1;cursor:grab;background:transparent}
+#graph:active{cursor:grabbing}
+
+/* ── COMPARE ── */
+.compare-wrap{display:none;flex:1;gap:1px;background:var(--border)}
+.compare-wrap.vis{display:flex}
+.compare-half{flex:1;position:relative;background:var(--bg);overflow:hidden}
+.compare-half svg{width:100%;height:100%}
+.compare-lbl{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--text);background:rgba(10,15,22,0.9);border:1px solid var(--border2);border-radius:var(--r);padding:3px 10px;pointer-events:none;z-index:10;letter-spacing:0.04em}
+
+/* ── SIDEBAR ── */
+.sidebar{width:268px;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:rgba(13,21,32,0.96);backdrop-filter:blur(16px);flex-shrink:0}
+.sidebar-scroll{flex:1;overflow-y:auto;background:inherit;color:inherit}
+.s-section{padding:13px 15px;border-bottom:1px solid var(--border)}
+.s-title{font-size:8.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted2);margin-bottom:9px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+
+/* ── LEGEND ── */
+.leg-item{margin-bottom:9px}
+.leg-row{display:flex;align-items:center;gap:7px;margin-bottom:1px}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-name{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;color:var(--text)}
+.leg-sub{font-size:8.5px;color:var(--muted2);margin-left:15px;line-height:1.5}
+.tipo-badge{display:inline-flex;align-items:center;gap:3px;font-size:8.5px;letter-spacing:0.07em;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin-left:15px;margin-top:3px;cursor:help;position:relative}
+.tipo-badge.hibrida{background:var(--jo2);color:var(--jo-light);border:1px solid rgba(46,139,87,0.25)}
+.tipo-badge.concentrada{background:var(--st2);color:var(--st-light);border:1px solid rgba(123,45,139,0.25)}
+.tipo-badge.dispersa{background:var(--fm2);color:var(--fm-light);border:1px solid rgba(204,85,0,0.25)}
+.tipo-tt{display:none;position:absolute;left:0;top:calc(100% + 4px);width:210px;background:rgba(13,21,32,0.99);border:1px solid var(--border2);border-radius:var(--r2);padding:9px;font-size:9.5px;color:var(--muted);line-height:1.6;z-index:600;pointer-events:none;letter-spacing:0;text-transform:none;box-shadow:0 8px 24px rgba(0,0,0,.6)}
+.tipo-badge:hover .tipo-tt{display:block}
+
+/* ── METRICS ── */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px}
+.m-card{background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:var(--r);padding:8px 9px;display:flex;flex-direction:column;gap:2px;transition:border-color .2s}
+.m-card:hover{border-color:var(--border2)}
+.m-val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--text);line-height:1}
+.m-lbl{font-size:7.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted2)}
+.m-sub{font-size:8.5px;color:var(--muted);margin-top:1px;line-height:1.35;word-break:break-word}
+.m-full{background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:var(--r);padding:8px 9px;margin-top:5px;transition:border-color .2s}
+.m-full:hover{border-color:var(--border2)}
+
+/* ── NODE PANEL ── */
+.node-empty{font-size:10.5px;color:var(--muted2);font-style:italic;line-height:1.7}
+.node-name{font-family:'Cormorant Garamond',serif;font-size:14.5px;font-weight:600;line-height:1.3;margin-bottom:7px}
+.node-role-chip{font-size:8.5px;letter-spacing:0.09em;text-transform:uppercase;padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:8px}
+.node-f{display:flex;gap:6px;font-size:9.5px;margin-bottom:3px;line-height:1.5;align-items:flex-start}
+.node-f strong{color:var(--muted);font-weight:500;min-width:58px;flex-shrink:0;font-size:9px;letter-spacing:0.05em;text-transform:uppercase}
+.node-analysis-box{font-size:9.5px;color:var(--muted);line-height:1.65;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:var(--r);padding:8px;margin:7px 0}
+.na-title{font-size:7.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted2);margin-bottom:4px;font-weight:600}
+.conn-list{margin-top:7px}
+.conn-item{display:flex;align-items:flex-start;gap:5px;padding:5px 0;border-top:1px solid rgba(255,255,255,0.035);font-size:9.5px;color:var(--muted);line-height:1.4}
+.conn-dot{width:5px;height:5px;border-radius:50%;margin-top:3px;flex-shrink:0}
+.conn-type{font-size:8px;color:var(--muted2);margin-top:1px}
+
+/* ── EXPORT ── */
+.export-grid{display:flex;flex-direction:column;gap:4px}
+.exp-item{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;transition:all .15s;font-size:9.5px;color:var(--muted)}
+.exp-item:hover{background:var(--gold2);border-color:rgba(201,168,76,0.35);color:var(--gold)}
+.exp-left{display:flex;align-items:center;gap:6px}
+.exp-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.exp-badge{font-size:8px;background:rgba(255,255,255,0.06);border-radius:3px;padding:1px 5px;color:var(--muted2);border:1px solid var(--border)}
+
+/* ── CONTACT ── */
+.contact-row{display:flex;flex-direction:column;gap:5px}
+.contact-link{display:flex;align-items:center;gap:7px;padding:6px 9px;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:var(--r);font-size:9.5px;color:var(--muted);text-decoration:none;transition:all .15s}
+.contact-link:hover{background:var(--gold2);border-color:rgba(201,168,76,0.35);color:var(--gold)}
+.contact-icon{width:14px;height:14px;flex-shrink:0;opacity:.6}
+.contact-link:hover .contact-icon{opacity:1}
+
+/* ── PATH FINDER ── */
+.path-wrap{display:flex;flex-direction:column;gap:6px}
+.path-row{display:flex;gap:5px;align-items:center}
+.path-select{flex:1;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--r);padding:4px 7px;color:var(--text);font-family:'Syne',sans-serif;font-size:9.5px;outline:none;cursor:pointer;transition:border-color .2s}
+.path-select:focus{border-color:var(--border3)}
+.path-select option{background:#0d1520}
+.path-btn{padding:4px 10px;border-radius:var(--r);border:1px solid rgba(201,168,76,0.3);background:var(--gold2);color:var(--gold);font-family:'Syne',sans-serif;font-size:9.5px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.path-btn:hover{background:var(--gold3)}
+.path-result{font-size:9.5px;color:var(--muted);line-height:1.65;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:var(--r);padding:7px 9px;min-height:36px}
+.path-step{color:var(--text);font-weight:500}
+
+/* ── TOOLTIP ── */
+.tooltip{position:fixed;background:rgba(13,21,32,0.99);border:1px solid var(--border2);border-radius:var(--r2);padding:11px 13px;max-width:270px;pointer-events:none;opacity:0;transition:opacity .12s;z-index:1000;backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,.75)}
+.tooltip.vis{opacity:1}
+.tt-top{display:flex;align-items:flex-start;gap:7px;margin-bottom:7px}
+.tt-dot{width:7px;height:7px;border-radius:50%;margin-top:3px;flex-shrink:0}
+.tt-label{font-family:'Cormorant Garamond',serif;font-size:13.5px;font-weight:600;line-height:1.3;color:var(--text)}
+.tt-type{font-size:8.5px;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.tt-row{font-size:9.5px;color:var(--muted);margin-top:3px;line-height:1.5;display:flex;gap:5px}
+.tt-row strong{color:var(--muted);font-weight:500;min-width:46px;font-size:9px;text-transform:uppercase;letter-spacing:.04em}
+.tt-analysis{font-size:9.5px;color:var(--muted);margin-top:6px;border-top:1px solid var(--border2);padding-top:6px;line-height:1.55;font-style:italic}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.modal-overlay.vis{display:flex}
+.modal{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r3);padding:26px;max-width:500px;width:90%;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.8)}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin-bottom:5px;color:var(--text)}
+.modal p{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:12px}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;transition:color .15s}
+.modal-close:hover{color:var(--text)}
+.update-steps{display:flex;flex-direction:column;gap:7px}
+.u-step{display:flex;align-items:flex-start;gap:9px;padding:9px;background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:var(--r)}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--gold2);border:1px solid rgba(201,168,76,0.35);color:var(--gold);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:600}
+.step-text{font-size:10.5px;color:var(--muted);line-height:1.6}
+.step-text strong{color:var(--text)}
+.step-text code{font-size:9.5px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px;color:var(--gold)}
+.last-update{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--muted);margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+
+/* ── INSTRUCTIONS ── */
+.inst{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:12px;font-size:8.5px;color:var(--muted2);letter-spacing:.05em;pointer-events:none;z-index:10;white-space:nowrap}
+.inst-item{display:flex;align-items:center;gap:3px}
+.inst-key{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:3px;padding:1px 5px;font-size:7.5px}
+
+/* ── NODE & LINK STYLES ── */
+.node circle{stroke-width:1.1;cursor:pointer;transition:filter .15s,stroke-width .15s}
+.node circle:hover{filter:brightness(1.25)}
+.node text{font-family:'Syne',sans-serif;font-size:8px;fill:#ffffff;pointer-events:none;paint-order:stroke;stroke:rgba(10,15,22,0.97);stroke-width:3px;stroke-linejoin:round}
+.node text.node-subtitle{font-size:6.5px;fill:rgba(255,255,255,0.75);stroke:rgba(10,15,22,0.97);stroke-width:2.5px}
+.node.selected circle{stroke-width:2.5;filter:brightness(1.35)}
+/* Light mode: dark text, light stroke */
+body.light .node text{fill:rgba(18,14,8,0.92)!important;stroke:rgba(245,241,235,0.98)!important;stroke-width:3px!important}
+body.light .node text.node-subtitle{fill:rgba(18,14,8,0.65)!important;stroke:rgba(245,241,235,0.98)!important;stroke-width:2.5px!important}
+.link{stroke-opacity:.2;transition:stroke-opacity .15s}
+.link.w3{stroke-opacity:.48}
+.link.w2{stroke-opacity:.28}
+.link.w1{stroke-opacity:.11}
+.link.hl{stroke-opacity:.78!important;stroke-width:2px!important}
+.link.path-hl{stroke-opacity:.9!important;stroke-width:2.5px!important;stroke:#FFD700!important}
+
+/* ── NOTIFY ── */
+.notify{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(13,21,32,0.99);border:1px solid var(--border2);border-radius:var(--r2);padding:9px 18px;font-size:10.5px;color:var(--text);z-index:1100;opacity:0;transition:all .35s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.notify.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.notify.success{border-color:rgba(46,139,87,.4);color:#4CAF82}
+.notify.error{border-color:rgba(204,85,0,.4);color:var(--fm-light)}
+
+/* ── FLOW LEGEND ── */
+.flow-legend{display:flex;flex-direction:column;gap:4px}
+.fl-item{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--muted)}
+.fl-line{width:20px;height:2px;border-radius:1px;flex-shrink:0}
+.fl-arrow{font-size:10px;opacity:.7}
+
+/* ── EXPORT MODE BUTTONS ── */
+.exp-mode-btn{flex:1;padding:4px 6px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:8.5px;cursor:pointer;transition:all .15s;text-align:center;white-space:nowrap}
+.exp-mode-btn:hover{border-color:var(--border3);color:var(--text);background:rgba(255,255,255,0.04)}
+.exp-mode-btn.active{border-color:var(--gold);color:var(--gold);background:var(--gold2)}
+body.light .exp-mode-btn{color:var(--muted)!important;border-color:rgba(0,0,0,0.1)!important;background:transparent!important}
+body.light .exp-mode-btn:hover{color:var(--text)!important;background:rgba(0,0,0,0.05)!important}
+body.light .exp-mode-btn.active{color:var(--gold)!important;background:var(--gold2)!important;border-color:var(--gold3)!important}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-brand">
+    <h1>Atlas Relacional del Poder: Lujo Femenino, Élites e Influencia</h1>
+    <div class="h-meta">
+      <a href="https://www.linkedin.com/in/sharon-obando-delgado-estratega-en-comunicacion-moda-imagen-poder/" target="_blank" rel="noopener noreferrer" target="_blank">Sharon Obando Delgado</a>
+      <span class="h-meta-sep">·</span>
+      <span>The Fashion Politics</span>
+      <span class="h-meta-sep">·</span>
+      <span>Análisis de Redes Sociales</span>
+    </div>
+  </div>
+  <button class="mob-sidebar-btn" id="mob-sb-btn" onclick="toggleMobSidebar()" aria-label="Panel">☰</button>
+  <div class="h-right">
+    <div class="pill"><span id="nc">169</span> nodos · <span id="ec">197</span> aristas</div>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀ Fondo</button>
+    <div class="update-badge" onclick="document.getElementById('modal-update').classList.add('vis')">
+      <div class="update-dot"></div>
+      Mayo 2026
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <span class="ctrl-label">Red</span>
+  <button class="fbtn active all" data-filter="all"><span class="dot" style="background:rgba(255,255,255,0.4)"></span>Todas</button>
+  <button class="fbtn jo" data-filter="JO"><span class="dot" style="background:var(--jo)"></span>Johanna Ortiz</button>
+  <button class="fbtn st" data-filter="ST"><span class="dot" style="background:var(--st)"></span>Silvia Tcherassi</button>
+  <button class="fbtn fm" data-filter="FM"><span class="dot" style="background:var(--fm)"></span>Francesca Miranda</button>
+  <div class="sep"></div>
+  <button class="fbtn sh" data-filter="shared"><span class="dot" style="background:var(--shared)"></span>Nodos puente</button>
+  <button class="fbtn col" data-filter="colombina"><span class="dot" style="background:var(--jo)"></span>Red Colombina</button>
+  <div class="sep"></div>
+  <button class="icon-btn" id="compare-btn" onclick="toggleCompare()">⊞ Comparar</button>
+  <button class="icon-btn" id="flow-btn" onclick="toggleFlow()" title="Mostrar flujo de capital simbólico">⟳ Flujo cap.</button>
+  <div class="search-wrap">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="search" placeholder="Buscar nodo... (Esc para limpiar)">
+  </div>
+</div>
+
+<div class="type-bar" id="type-bar">
+  <span class="ctrl-label" style="margin-right:4px">Tipo</span>
+  <div class="type-chip active" data-type="all">Todos</div>
+</div>
+
+<div class="main">
+  <div class="graph-area" id="graph-area">
+    <svg id="graph"></svg>
+    <div class="compare-wrap" id="compare-wrap"></div>
+    <div class="zoom-controls">
+    <button class="z-btn" onclick="zoomIn()" title="Acercar">+</button>
+    <button class="z-btn" onclick="zoomOut()" title="Alejar">−</button>
+    <button class="z-btn" onclick="zoomReset()" title="Restablecer vista" style="font-size:11px">⌂</button>
+    <button class="z-btn" onclick="toggleFullscreen()" title="Pantalla completa" id="fs-btn" style="font-size:11px">⛶</button>
+  </div>
+  <div class="inst">
+      <div class="inst-item"><span class="inst-key">Scroll</span> zoom</div>
+      <div class="inst-item"><span class="inst-key">Drag</span> mover</div>
+      <div class="inst-item"><span class="inst-key">Clic</span> seleccionar</div>
+      <div class="inst-item"><span class="inst-key">Doble clic</span> centrar</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-scroll">
+
+      <!-- LEGEND -->
+      <div class="s-section">
+        <div class="s-title">Redes · Tipología</div>
+        <div class="leg-item">
+          <div class="leg-row"><div class="leg-dot" style="background:var(--jo)"></div><div class="leg-name">Johanna Ortiz</div></div>
+          <div class="leg-sub">72 nodos · Cali · Red híbrida</div>
+          <div class="tipo-badge hibrida">Híbrida
+            <div class="tipo-tt">Red HÍBRIDA: Reproduce el cluster azucarero-confitero (Caicedo/Colombina/Riopaila, accionistas verificados BVC) y simultáneamente reconfigura hacia poder político municipal (Eder/Alcaldía Cali vía Arboleda) y élite global de lujo (Santo Domingo/Moda Operandi/AB InBev). Única red que articula 3 campos de poder simultáneamente. Nodo puente mayor betweenness: Harold Eder → Alcaldía Cali.</div>
+          </div>
+        </div>
+        <div class="leg-item" style="margin-top:7px">
+          <div class="leg-row"><div class="leg-dot" style="background:var(--st)"></div><div class="leg-name">Silvia Tcherassi</div></div>
+          <div class="leg-sub">56 nodos · Barranquilla · Red concentrada</div>
+          <div class="tipo-badge concentrada">Concentrada-familiar
+            <div class="tipo-tt">Red CONCENTRADA-FAMILIAR: Alta densidad interna. Capital político directo heredado (padre gobernador del Atlántico 1973-74). Mayor rango político en clientas: Hillary Clinton (ex Secretaria de Estado EEUU). Mayor capital simbólico institucional: Ordre des Arts et Lettres Francia 2004 + primera latinoamericana MFW+PFW. Flujo de capital INVERTIDO: poder político precede y produce la marca.</div>
+          </div>
+        </div>
+        <div class="leg-item" style="margin-top:7px">
+          <div class="leg-row"><div class="leg-dot" style="background:var(--fm)"></div><div class="leg-name">Francesca Miranda</div></div>
+          <div class="leg-sub">37 nodos · Transnacional · Red dispersa</div>
+          <div class="tipo-badge dispersa">Dispersa-transnacional
+            <div class="tipo-tt">Red DISPERSA-TRANSNACIONAL: Sin cluster de élite regional colombiana. Nodos en El Salvador, Panamá, Hong Kong, Miami. Sucesión generacional documentada (Daniella Jassir dirige la marca). Produce capital simbólico sin red redistributiva regional que lo absorba. Caso de contraste metodológico: confirma hipótesis de Granovetter sobre ausencia de nodos puente.</div>
+          </div>
+        </div>
+        <div class="leg-item" style="margin-top:7px">
+          <div class="leg-row"><div class="leg-dot" style="background:var(--shared)"></div><div class="leg-name" style="font-size:11px">Nodo puente JO · ST</div></div>
+        </div>
+        <div class="leg-item" style="margin-top:3px">
+          <div class="leg-row"><div class="leg-dot" style="background:var(--shared-all)"></div><div class="leg-name" style="font-size:11px">Nodo puente JO · ST · FM</div></div>
+        </div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="s-section">
+        <div class="s-title">Métricas de red <span id="metrics-filter-label" style="color:var(--gold);font-size:8px"></span></div>
+        <div class="metrics-grid">
+          <div class="m-card"><div class="m-val" id="m-nodes">169</div><div class="m-lbl">Nodos</div></div>
+          <div class="m-card"><div class="m-val" id="m-edges">197</div><div class="m-lbl">Aristas</div></div>
+          <div class="m-card"><div class="m-val" id="m-density">–</div><div class="m-lbl">Densidad</div><div class="m-sub" id="m-density-sub"></div></div>
+          <div class="m-card"><div class="m-val" id="m-communities">3</div><div class="m-lbl">Comunidades</div><div class="m-sub">JO · ST · FM</div></div>
+        </div>
+        <div class="m-full"><div class="m-lbl" style="margin-bottom:3px">Mayor grado (degree)</div><div class="m-sub" id="m-top-degree" style="font-size:10.5px;color:var(--text)">–</div></div>
+        <div class="m-full" style="margin-top:4px"><div class="m-lbl" style="margin-bottom:3px">Mayor intermediación (betweenness est.)</div><div class="m-sub" id="m-top-bet" style="font-size:10.5px;color:var(--text)">–</div></div>
+        <div class="m-full" style="margin-top:4px">
+          <div class="m-lbl" style="margin-bottom:5px">Flujo de capital simbólico</div>
+          <div class="flow-legend">
+            <div class="fl-item"><div class="fl-line" style="background:var(--gold);opacity:.7"></div><span class="fl-arrow">↔</span>Bidireccional</div>
+            <div class="fl-item"><div class="fl-line" style="background:rgba(255,255,255,.3)"></div><span class="fl-arrow">→</span>Marca → Red</div>
+            <div class="fl-item"><div class="fl-line" style="background:rgba(255,255,255,.15)"></div><span class="fl-arrow">←</span>Red → Marca</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NODE PANEL -->
+      <div class="s-section">
+        <div class="s-title">Nodo seleccionado</div>
+        <div id="node-panel">
+          <div class="node-empty">Haz clic en cualquier nodo para ver su análisis estratégico completo: posición, tipo de capital, flujos simbólicos y conexiones verificadas.</div>
+        </div>
+      </div>
+
+      <!-- PATH FINDER -->
+      <div class="s-section">
+        <div class="s-title">Buscador de caminos</div>
+        <div class="path-wrap">
+          <div class="path-row">
+            <select class="path-select" id="path-from"><option value="">Nodo origen…</option></select>
+          </div>
+          <div class="path-row">
+            <select class="path-select" id="path-to"><option value="">Nodo destino…</option></select>
+            <button class="path-btn" onclick="findPath()">Buscar</button>
+          </div>
+          <div class="path-result" id="path-result">Selecciona dos nodos para encontrar el camino más corto entre ellos.</div>
+        </div>
+      </div>
+
+      <!-- EXPORT -->
+      <div class="s-section">
+        <div class="s-title">Exportar imagen <span style="color:var(--muted2);font-weight:400;font-size:7.5px">PNG alta resolución</span></div>
+
+        <!-- Color mode selector -->
+        <div style="display:flex;gap:4px;margin-bottom:8px">
+          <button class="exp-mode-btn active" data-mode="dark" onclick="setExportMode('dark',this)" title="Fondo oscuro">🌙 Oscuro</button>
+          <button class="exp-mode-btn" data-mode="light" onclick="setExportMode('light',this)" title="Fondo claro">☀ Claro</button>
+          <button class="exp-mode-btn" data-mode="bw" onclick="setExportMode('bw',this)" title="Blanco y negro">◑ B&amp;N</button>
+        </div>
+
+        <div class="export-grid">
+          <div class="exp-item" onclick="exportGraph('all',currentExportMode)">
+            <div class="exp-left"><div class="exp-dot" style="background:rgba(255,255,255,.4)"></div>Red general · 3 diseñadoras</div>
+            <span class="exp-badge">PNG</span>
+          </div>
+          <div class="exp-item" onclick="exportGraph('JO',currentExportMode)">
+            <div class="exp-left"><div class="exp-dot" style="background:var(--jo)"></div>Johanna Ortiz</div>
+            <span class="exp-badge">PNG</span>
+          </div>
+          <div class="exp-item" onclick="exportGraph('ST',currentExportMode)">
+            <div class="exp-left"><div class="exp-dot" style="background:var(--st)"></div>Silvia Tcherassi</div>
+            <span class="exp-badge">PNG</span>
+          </div>
+          <div class="exp-item" onclick="exportGraph('FM',currentExportMode)">
+            <div class="exp-left"><div class="exp-dot" style="background:var(--fm)"></div>Francesca Miranda</div>
+            <span class="exp-badge">PNG</span>
+          </div>
+          <div class="exp-item" onclick="exportGraph('shared',currentExportMode)">
+            <div class="exp-left"><div class="exp-dot" style="background:var(--shared)"></div>Nodos puente · JO·ST·FM</div>
+            <span class="exp-badge">PNG</span>
+          </div>
+          <div class="exp-item" onclick="exportGraph('colombina',currentExportMode)">
+            <div class="exp-left"><div class="exp-dot" style="background:var(--jo)"></div>Red Colombina completa</div>
+            <span class="exp-badge">PNG</span>
+          </div>
+          <div class="exp-item" onclick="exportJSON()">
+            <div class="exp-left"><div class="exp-dot" style="background:var(--gold)"></div>Datos completos</div>
+            <span class="exp-badge">JSON</span>
+          </div>
+          <div class="exp-item" onclick="exportCSV()">
+            <div class="exp-left"><div class="exp-dot" style="background:var(--gold)"></div>Nodos + aristas</div>
+            <span class="exp-badge">CSV</span>
+          </div>
+        </div>
+        <div style="font-size:8.5px;color:var(--muted2);margin-top:6px;line-height:1.5">Si el PNG falla, se descarga automáticamente como SVG (abre en Inkscape o navegador).</div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="s-section">
+        <div class="s-title">Contacto · Investigadora</div>
+        <div class="contact-row">
+          <a class="contact-link" href="https://www.linkedin.com/in/sharon-obando-delgado-estratega-en-comunicacion-moda-imagen-poder/" target="_blank" rel="noopener noreferrer">
+            <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            Sharon Obando Delgado
+          </a>
+          <div class="contact-link" style="cursor:pointer;user-select:all" onclick="copyEmail(this)" title="Clic para copiar">
+            <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span id="email-txt">sharonobandodelgado@gmail.com</span>
+            <span id="email-copied" style="display:none;font-size:8.5px;color:var(--jo-light);margin-left:auto">✓ Copiado</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="sidebar-overlay" id="sb-overlay" onclick="toggleMobSidebar()"></div>
+<div class="tooltip" id="tt"></div>
+
+<!-- NOTIFY -->
+<div class="notify" id="notify"></div>
+
+<!-- UPDATE MODAL -->
+<div class="modal-overlay" id="modal-update" onclick="if(event.target===this)this.classList.remove('vis')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modal-update').classList.remove('vis')">×</button>
+    <h2>Sistema de actualización</h2>
+    <p>Este atlas mapea vínculos públicos verificables. La red se actualiza conforme emerjan nuevos vínculos documentados en fuentes primarias (BVC, RUES, Cámara de Comercio, prensa verificada).</p>
+    <div class="update-steps">
+      <div class="u-step"><div class="step-num">1</div><div class="step-text"><strong>Monitoreo:</strong> BVC para cambios en JD Colombina · RUES para nuevas empresas · La Silla Vacía, El Heraldo, prensa especializada en moda y poder.</div></div>
+      <div class="u-step"><div class="step-num">2</div><div class="step-text"><strong>Criterio de inclusión:</strong> Solo vínculos formales verificables — junta directiva, alianza comercial documentada, institución compartida. No se incluyen menciones de prensa sin cargo formal.</div></div>
+      <div class="u-step"><div class="step-num">3</div><div class="step-text"><strong>Contacto para actualización:</strong> <code>sharonobandodelgado@gmail.com</code></div></div>
+      <div class="u-step"><div class="step-num">4</div><div class="step-text"><strong>GitHub (recomendado):</strong> <code>sharonobando.github.io/atlas-poder-lujo</code> — URL permanente citable en publicaciones académicas.</div></div>
+    </div>
+    <div class="last-update">
+      <div class="update-dot"></div>
+      Última actualización verificada: 9 de mayo de 2026 · Sharon Obando Delgado · The Fashion Politics
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const RAW_NODES=[{"id":"JO_MARCA","label":"Johanna Ortiz (Marca)","type":"Marca","designer":"JO","color":"#2D6A4F","size":32,"region":"Cali","source":"johannaortiz.com","role":"Nodo ego central","analysis":"Concentra capital simbólico de la red. Su centralidad determina el alcance de la diseñadora en campos de poder.","capsym":"↔ bidireccional","degree_est":"alta","bet_flag":"alto"},{"id":"JO_PERSON","label":"Johanna Ortiz (Diseñadora)","type":"Persona_Diseñadora","designer":"JO","color":"#2D6A4F","size":28,"region":"Cali","source":"El País Cali 19 abr.2015","role":"Ego de red","analysis":"Actor con mayor capacidad de articulación entre campos. Produce y redistribuye capital simbólico.","capsym":"↔ bidireccional","degree_est":"alta","bet_flag":"alto"},{"id":"CC_PERSON","label":"César Augusto Caicedo Jaramillo","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":22,"region":"Cali","source":"La Silla Vacía 2019","role":"Élite económica — cónyuge","analysis":"Nodo de MAYOR DEGREE en la red JO. Presidente Colombina + ANDI Valle + UAV + Alianza Pacífico. El matrimonio con JO es la arista estructural más importante de la investigación.","capsym":"↔ bidireccional","degree_est":"muy alta","bet_flag":"ALTO"},{"id":"PAOLA_O","label":"Paola Ortiz (hermana-socia)","type":"Persona_Social","designer":"JO","color":"#2D6A4F","size":13,"region":"Cali","source":"El País Cali 2015","role":"Élite social","analysis":"Reproduce capital social y posición en campo de la distinción. Nexo entre esfera privada y pública.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"LUKAS_C","label":"Lukas Lloreda Caicedo (hijo mayor)","type":"Persona_Social","designer":"JO","color":"#2D6A4F","size":11,"region":"Cali","source":"Hola sept.2023","role":"Élite social","analysis":"Redistribución de capital simbólico hacia la siguiente generación.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"JOAQUIN_C","label":"Joaquín Caicedo (hijo)","type":"Persona_Social","designer":"JO","color":"#2D6A4F","size":11,"region":"Cali","source":"El País Cali 2015","role":"Élite social","analysis":"Redistribución de capital simbólico hacia la siguiente generación.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"LORENZO_C","label":"Lorenzo Caicedo (hijo menor)","type":"Persona_Social","designer":"JO","color":"#2D6A4F","size":11,"region":"Cali","source":"Hola sept.2023","role":"Élite social","analysis":"Redistribución de capital simbólico hacia la siguiente generación.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"HERNANDO_C1","label":"Hernando Caicedo (bisabuelo-fundador)","type":"Persona_Historico","designer":"JO","color":"#2D6A4F","size":13,"region":"Valle del Cauca","source":"colombina.com/historia","role":"Nodo fundacional","analysis":"Fundador Colombina (1927) y Riopaila (1918). Origen del capital acumulado por 3 generaciones.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"JAIME_HC","label":"Jaime Hernando Caicedo (abuelo de César)","type":"Persona_Historico","designer":"JO","color":"#2D6A4F","size":11,"region":"Valle del Cauca","source":"La Silla Vacía 2019","role":"Nodo fundacional","analysis":"Internacionalizó Colombina desde 1946.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"JAIME_H_C","label":"Jaime H. Caicedo (padre de César †1987)","type":"Persona_Historico","designer":"JO","color":"#2D6A4F","size":11,"region":"Valle del Cauca","source":"La Silla Vacía 2019","role":"Nodo fundacional","analysis":"Creó el Bon Bon Bum. Presidente hasta 1987.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"HILDA_CAPURRO","label":"Hilda Capurro de Caicedo & Cia (16,19%)","type":"Accionista_Colombina","designer":"JO","color":"#2D6A4F","size":15,"region":"Valle del Cauca","source":"colombina.com/accionistas; BVC","role":"Accionista mayoritaria Colombina","analysis":"Mayor accionista individual de Colombina. Estructura familiar: 63% del capital en manos de la familia Caicedo vía esta sociedad y fideicomisos.","capsym":"← capital económico","degree_est":"media","bet_flag":"medio"},{"id":"LUMUMBA_SAS","label":"Lumumba S.A.S. (10,34% Colombina)","type":"Accionista_Colombina","designer":"JO","color":"#2D6A4F","size":13,"region":"Valle del Cauca","source":"colombina.com/accionistas; BVC","role":"Accionista corporativo verificado","analysis":"Sociedad familiar accionista de Colombina. % documentado en BVC.","capsym":"← capital económico","degree_est":"baja","bet_flag":"bajo"},{"id":"FIDEI_FARALLONES","label":"Fideicomiso Acciones Farallones (10,02%)","type":"Accionista_Colombina","designer":"JO","color":"#2D6A4F","size":13,"region":"Valle del Cauca","source":"colombina.com/accionistas; BVC","role":"Fideicomiso accionario Colombina","analysis":"Fideicomiso familiar Alianza Fiduciaria. % documentado en BVC.","capsym":"← capital económico","degree_est":"baja","bet_flag":"bajo"},{"id":"FIDEI_VALLE","label":"Fideicomiso Acciones del Valle I (10,02%)","type":"Accionista_Colombina","designer":"JO","color":"#2D6A4F","size":13,"region":"Valle del Cauca","source":"colombina.com/accionistas; BVC","role":"Fideicomiso accionario Colombina","analysis":"Fideicomiso familiar Alianza Fiduciaria. % documentado en BVC.","capsym":"← capital económico","degree_est":"baja","bet_flag":"bajo"},{"id":"FIDEI_CALI","label":"Fideicomiso Acciones Cali (8,73%)","type":"Accionista_Colombina","designer":"JO","color":"#2D6A4F","size":13,"region":"Valle del Cauca","source":"colombina.com/accionistas; BVC","role":"Fideicomiso accionario Colombina","analysis":"Fideicomiso familiar Alianza Fiduciaria. % documentado en BVC.","capsym":"← capital económico","degree_est":"baja","bet_flag":"bajo"},{"id":"CARE_TRUST","label":"The Care Trust (8,42% - offshore)","type":"Accionista_Colombina","designer":"JO","color":"#2D6A4F","size":13,"region":"Internacional","source":"colombina.com/accionistas; BVC","role":"Fideicomiso offshore Colombina","analysis":"Único nodo offshore en la propiedad accionaria. Conecta capital familiar con circuitos internacionales sin perder control.","capsym":"← capital internacional","degree_est":"baja","bet_flag":"bajo"},{"id":"FIDEI_BAMFA","label":"Fideicomiso Acciones BAMFA (8,04%)","type":"Accionista_Colombina","designer":"JO","color":"#2D6A4F","size":13,"region":"Valle del Cauca","source":"colombina.com/accionistas; BVC","role":"Fideicomiso accionario Colombina","analysis":"Fideicomiso familiar Alianza Fiduciaria. % documentado en BVC.","capsym":"← capital económico","degree_est":"baja","bet_flag":"bajo"},{"id":"COLOMBINA","label":"Colombina S.A.","type":"Empresa","designer":"JO","color":"#2D6A4F","size":20,"region":"Valle del Cauca","source":"JD Colombina PDFs BVC 2023-24; BVC","role":"Empresa eje del cluster económico JO","analysis":"Empresa cotizada BVC. Ventas ~$690M, 85 países. Nodo económico más importante de la red JO. Interlocking con Riopaila-Castilla y Comfandi.","capsym":"↔ bidireccional","degree_est":"alta","bet_flag":"ALTO"},{"id":"RIOPAILA","label":"Riopaila-Castilla S.A.","type":"Empresa","designer":"JO","color":"#2D6A4F","size":17,"region":"Valle del Cauca","source":"riopaila-castilla.com","role":"Empresa azucarera — interlocking JD","analysis":"3er grupo azucarero Valle del Cauca. Interlocking verificado con Colombina en 4 personas simultáneas.","capsym":"← capital económico","degree_est":"media","bet_flag":"MED"},{"id":"BELISARIO_CC","label":"Belisario Caicedo Capurro (JD Colombina+Riopaila)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":16,"region":"Valle del Cauca","source":"JD Colombina PDF BVC; riopaila-castilla.com","role":"Interlocking directorates","analysis":"Sienta simultáneamente en JD Colombina y JD Riopaila-Castilla. Mecanismo de coordinación inter-empresarial élite.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"MARCO_A_CJ","label":"Marco Aurelio Caicedo Jaramillo (JD Colombina+Riopaila)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":16,"region":"Valle del Cauca","source":"JD Colombina PDF BVC; riopaila-castilla.com","role":"Interlocking directorates","analysis":"Sienta simultáneamente en JD Colombina y JD Riopaila-Castilla. Interlocking verificado.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"JACOBO_TC","label":"Jacobo Tovar Caicedo (JD Colombina+Riopaila+Comfandi)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":18,"region":"Valle del Cauca","source":"JD Colombina PDF BVC","role":"Interlocking 3 sectores","analysis":"Interlocking en 3 sectores simultáneos: Colombina + Riopaila + Comfandi (Caja Compensación más grande del Valle). Alta betweenness intersectorial.","capsym":"← recibe","degree_est":"alta","bet_flag":"ALTO"},{"id":"MATEO_SC","label":"Mateo Santacruz Caicedo (JD Colombina 2023 + Central Saint Martins)","type":"Persona_Social","designer":"JO","color":"#2D6A4F","size":16,"region":"Valle del Cauca","source":"JD Colombina PDF BVC 2023-24","role":"HALLAZGO: redistribución cap. simbólico generacional","analysis":"HALLAZGO CLAVE: Entró a JD Colombina en 2023. Estudió Fashion London y Fashion History & Theory en Central Saint Martins (escuela de diseño más prestigiosa del mundo). Evidencia empírica directa de redistribución de capital simbólico hacia la siguiente generación de la élite económica.","capsym":"→ cap. simbólico redistributivo","degree_est":"media","bet_flag":"ALTO"},{"id":"MEDOMI_LL","label":"María Elvira Domínguez Lloreda (JD Colombina+Dir.El País+Pdte SIP)","type":"Persona_Economico_Social","designer":"JO","color":"#2D6A4F","size":18,"region":"Cali","source":"JD Colombina PDF BVC; Semana jun.2023","role":"Puente poder económico-mediático","analysis":"Triple posición: JD Colombina + Directora Gerente El País Cali 16 años + Presidenta Sociedad Interamericana de Prensa 2018-19. Puente entre campo económico Caicedo y campo mediático regional e internacional.","capsym":"← recibe","degree_est":"alta","bet_flag":"ALTO"},{"id":"EL_PAIS_CALI","label":"Diario El País Cali","type":"Empresa_Media","designer":"JO","color":"#2D6A4F","size":13,"region":"Cali","source":"Semana jun.2023","role":"Medio de comunicación regional","analysis":"Control mediático vía interlocking con JD Colombina (Domínguez Lloreda). Reproduce posición simbólica de la red.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"JUAN_R_G","label":"Juan Ramón Guzmán (JD Colombina+Belleza Express+UAV)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":18,"region":"Cali","source":"JD Colombina PDF BVC; La Silla Vacía 2019","role":"Puente confitería-retail-política gremial","analysis":"Conecta en una sola persona: JD Colombina + gerencia Belleza Express + cofundador UAV. Articulación única entre campo empresarial confitero, retail de belleza y política gremial.","capsym":"← recibe","degree_est":"alta","bet_flag":"ALTO"},{"id":"ANDI_JD","label":"ANDI Valle del Cauca – JD","type":"Institución_Gremial","designer":"JO","color":"#2D6A4F","size":14,"region":"Valle del Cauca","source":"La Silla Vacía 2019","role":"Gremio empresarial regional","analysis":"César Caicedo fue Presidente JD ANDI Valle 2019. Mecanismo de coordinación formal entre élites empresariales.","capsym":"→ cap. institucional","degree_est":"baja","bet_flag":"bajo"},{"id":"UAV","label":"Unidad de Acción Vallecaucana","type":"Institución_Gremial_Politica","designer":"JO","color":"#2D6A4F","size":16,"region":"Cali","source":"uav.org.co; La Silla Vacía 2019","role":"Mecanismo formal financiación política","analysis":"César Caicedo: 1er Vicepresidente UAV. Mecanismo formal de financiación política del empresariado caleño. Vínculos verificados con campañas Armitage, Guerrero, Garcés, Velasco, Ortíz.","capsym":"→ cap. político","degree_est":"media","bet_flag":"MED"},{"id":"ALIANZA_PAC","label":"Consejo Empresarial Alianza del Pacífico","type":"Institución_Internacional","designer":"JO","color":"#2D6A4F","size":16,"region":"Internacional","source":"La Silla Vacía 2019","role":"Institución internacional","analysis":"César Caicedo: miembro desde 2019 (recomendado por gobernadora Dillian Toro). Conecta con entornos presidenciales de Colombia, México, Chile y Perú.","capsym":"→ cap. político internacional","degree_est":"media","bet_flag":"MED"},{"id":"DILLIAN_T","label":"Dillian Francisca Toro (exgobernadora Valle)","type":"Persona_Politico","designer":"JO","color":"#2D6A4F","size":18,"region":"Valle del Cauca","source":"La Silla Vacía 2019","role":"Élite política regional","analysis":"Recomendó a César Caicedo para el Consejo Empresarial de la Alianza del Pacífico en 2019. Relación biunívoca entre campo empresarial y político regional.","capsym":"↔ bidireccional","degree_est":"media","bet_flag":"MED"},{"id":"ALEJANDRO_E","label":"Alejandro Eder (Alcalde Cali desde 2024)","type":"Persona_Politico","designer":"JO","color":"#2D6A4F","size":20,"region":"Cali","source":"AgenciaPI.co; La Silla Vacía","role":"Élite política municipal — 2 grados de JO","analysis":"Alcalde Cali 2024. Hermano de Harold Eder (cónyuge Adriana Arboleda, socia JO). JO está a 2 grados del poder ejecutivo municipal de la ciudad de su sede y planta de producción.","capsym":"→ cap. político municipal","degree_est":"media","bet_flag":"ALTO"},{"id":"HAROLD_E","label":"Harold Eder (Grupo Manuelita)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":20,"region":"Cali","source":"Semana 2020","role":"Nodo puente MAYOR betweenness red JO","analysis":"NODO PUENTE MAYOR BETWEENNESS: Conecta campo de la moda con poder político municipal SIN pasar por la familia Caicedo. Cónyuge de Adriana Arboleda (socia JO Pink Filosofy) y hermano del Alcalde de Cali. Articulación estructuralmente nueva, no heredada.","capsym":"↔ bidireccional","degree_est":"alta","bet_flag":"ALTO"},{"id":"ADRIANA_A","label":"Adriana Arboleda","type":"Persona_Social","designer":"JO","color":"#2D6A4F","size":16,"region":"Cali","source":"pinkfilosofy.com; Semana 2020","role":"Socia Pink Filosofy — nodo puente","analysis":"Socia de JO en Pink Filosofy. Cónyuge de Harold Eder (Manuelita) y cuñada del Alcalde de Cali Alejandro Eder. Nodo articulador entre moda y poder político municipal.","capsym":"↔ bidireccional","degree_est":"media","bet_flag":"ALTO"},{"id":"LAUREN_SD","label":"Lauren Santo Domingo","type":"Persona_Internacional","designer":"JO","color":"#2D6A4F","size":17,"region":"Nueva York-EEUU","source":"WWD oct.2019; Hola ene.2023","role":"Puente JO → élite mediática colombiana global","analysis":"Cofundadora Moda Operandi. Cónyuge Andrés Santo Domingo (~$4.4bn Forbes). En 2014 llevó JO al mercado internacional. En 2023 co-firmaron libro Cartagena Grace (Assouline). La relación evolucionó de comercial a alianza cultural documentada.","capsym":"↔ bidireccional","degree_est":"alta","bet_flag":"ALTO"},{"id":"ANDRES_SD","label":"Andrés Santo Domingo (~$4.4bn, AB InBev)","type":"Persona_Internacional","designer":"JO","color":"#2D6A4F","size":15,"region":"EEUU-Colombia","source":"Bloomberg Billionaires","role":"Élite económica colombiana global","analysis":"2da fortuna Colombia. Heredero Grupo Santo Domingo con Bavaria/AB InBev, Caracol TV, El Espectador. Cónyuge de Lauren SD.","capsym":"→ cap. económico","degree_est":"media","bet_flag":"MED"},{"id":"MODA_OP","label":"Moda Operandi (JO + ST)","type":"Empresa_Internacional","designer":"JO/ST","color":"#F4D03F","size":15,"region":"Nueva York-EEUU","source":"Las2Orillas ago.2016","role":"Plataforma luxury — nodo compartido JO+ST","analysis":"Plataforma luxury e-tail cofundada por Lauren Santo Domingo. Distribuye tanto JO como ST. NODO COMPARTIDO entre dos redes.","capsym":"↔ bidireccional","degree_est":"media","bet_flag":"MED"},{"id":"BEVCO_SD","label":"Bevco / Grupo Santo Domingo (Bavaria→AB InBev)","type":"Empresa_Internacional","designer":"JO","color":"#2D6A4F","size":13,"region":"Colombia-Luxemburgo","source":"Bloomberg; AB InBev board","role":"Holding cervecero-mediático","analysis":"AB InBev es el mayor productor de cerveza del mundo. Grupo SD también controla Caracol TV y El Espectador. La conexión JO → Lauren SD → Bevco conecta la marca con el mayor holding mediático colombiano.","capsym":"→ cap. económico mediático","degree_est":"baja","bet_flag":"bajo"},{"id":"ALEJANDRO_SD","label":"Alejandro Santo Domingo (Chairman Bavaria+AB InBev)","type":"Persona_Internacional","designer":"JO","color":"#2D6A4F","size":15,"region":"EEUU-Colombia","source":"ab-inbev.com/board","role":"Élite económica colombiana global","analysis":"Chairman Bavaria/AB InBev, Valorem, Caracol TV, El Espectador, Cine Colombia, Decameron. Hermano de Andrés SD.","capsym":"→ cap. económico","degree_est":"media","bet_flag":"MED"},{"id":"MEGHAN_M","label":"Meghan Markle (duquesa Sussex)","type":"Persona_Internacional_ClienteElite","designer":"JO","color":"#2D6A4F","size":12,"region":"Internacional","source":"Hola sept.2023","role":"Clienta élite — realeza activa","analysis":"Familia real británica. Su uso de la marca es consagración simbólica dinástica.","capsym":"→ cap. simbólico dinástico","degree_est":"baja","bet_flag":"bajo"},{"id":"RANIA_J","label":"Rania de Jordania (reina — JO y ST)","type":"Persona_Internacional_ClienteElite","designer":"JO/ST","color":"#F4D03F","size":12,"region":"Internacional","source":"Hola sept.2023; Audaces 2025","role":"Clienta élite — NODO COMPARTIDO JO+ST","analysis":"Reina activa de Jordania. NODO COMPARTIDO: clienta verificada de tanto Johanna Ortiz como Silvia Tcherassi. Único nodo de clienta que aparece en dos redes simultáneamente.","capsym":"→ cap. simbólico dinástico","degree_est":"baja","bet_flag":"bajo"},{"id":"CAROLINA_MONACO","label":"Carolina de Mónaco (princesa soberana)","type":"Persona_Internacional_ClienteElite","designer":"JO","color":"#2D6A4F","size":12,"region":"Internacional","source":"Hola sept.2023","role":"Clienta élite — realeza activa","analysis":"Princesa soberana de Mónaco. Consagración simbólica dinástica europea.","capsym":"→ cap. simbólico dinástico","degree_est":"baja","bet_flag":"bajo"},{"id":"MICHELLE_O","label":"Michelle Obama (ex Primera Dama EEUU)","type":"Persona_Internacional_ClienteElite","designer":"JO","color":"#2D6A4F","size":12,"region":"Internacional","source":"FashionUnited 2019","role":"Clienta élite — poder político EEUU","analysis":"Ex Primera Dama EEUU. Cap. político internacional de primer orden.","capsym":"→ cap. político internacional","degree_est":"baja","bet_flag":"bajo"},{"id":"AMAL_C","label":"Amal Clooney (abogada DDHH-CPI)","type":"Persona_Internacional_ClienteElite","designer":"JO","color":"#2D6A4F","size":12,"region":"Internacional","source":"El Tiempo BOCAS 2019","role":"Clienta élite — poder jurídico internacional","analysis":"Abogada con casos ante la Corte Penal Internacional. Cap. jurídico-político de alto nivel.","capsym":"→ cap. simbólico jurídico-político","degree_est":"baja","bet_flag":"bajo"},{"id":"IVANKA_T","label":"Ivanka Trump","type":"Persona_Internacional_ClienteElite","designer":"JO","color":"#2D6A4F","size":12,"region":"Internacional","source":"El Tiempo BOCAS 2019","role":"Clienta élite — poder político EEUU","analysis":"Asesora presidencial y hija del presidente Trump.","capsym":"→ cap. político","degree_est":"baja","bet_flag":"bajo"},{"id":"SOFIA_V","label":"Sofía Vergara","type":"Persona_Internacional_ClienteElite","designer":"JO","color":"#2D6A4F","size":12,"region":"Internacional","source":"WWD oct.2019","role":"Clienta élite — mediática","analysis":"Ex compañera de colegio de JO en Colombia. Cap. mediático Hollywood.","capsym":"→ cap. simbólico mediático","degree_est":"baja","bet_flag":"bajo"},{"id":"COLOMBIAMODA","label":"Colombiamoda / Inexmoda (JO+ST+FM)","type":"Institución_Sectorial","designer":"JO/ST/FM","color":"#F39C12","size":16,"region":"Nacional","source":"FashionUnited 2019","role":"NODO COMPARTIDO 3 REDES","analysis":"Única institución sectorial presente en las 3 redes simultáneamente. Reguladora del campo de la moda colombiana. Define jerarquía, legitimidad y visibilidad sectorial.","capsym":"↔ bidireccional","degree_est":"alta","bet_flag":"ALTO"},{"id":"BERGDORF","label":"Bergdorf Goodman","type":"Empresa_Internacional","designer":"JO","color":"#2D6A4F","size":13,"region":"Nueva York-EEUU","source":"El Tiempo BOCAS 2019","role":"Luxury retailer NY","analysis":"Luxury retail de referencia en Nueva York. Inserción en circuito de alta distinción norteamericano.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"NET_PORTER","label":"Net-a-Porter (JO + ST)","type":"Empresa_Internacional","designer":"JO/ST","color":"#F4D03F","size":13,"region":"Internacional","source":"FashionNetwork; audaces.com","role":"Luxury e-tail — nodo compartido JO+ST","analysis":"Plataforma luxury e-tail global. Distribuye tanto JO como ST. NODO COMPARTIDO.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"HM_COLAB","label":"H&M (colaboración capsule 2019)","type":"Empresa_Internacional","designer":"JO","color":"#2D6A4F","size":13,"region":"Internacional","source":"Semana 2019","role":"Alianza luxury-masivo","analysis":"Primera latinoamericana en colaborar con H&M. Articulación entre campo del lujo y mercado masivo.","capsym":"↔ bidireccional","degree_est":"baja","bet_flag":"bajo"},{"id":"ZONA_FRANCA","label":"Zona Franca Palmaseca-Cali","type":"Institución_Economica","designer":"JO","color":"#2D6A4F","size":11,"region":"Cali","source":"FashionUnited 2019","role":"Infraestructura productiva","analysis":"Planta de producción de JO. Vincula campo de moda con campo económico-industrial formal.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"ASSOULINE","label":"Assouline (libro Cartagena Grace 2023)","type":"Empresa_Internacional","designer":"JO","color":"#2D6A4F","size":13,"region":"París-Nueva York","source":"Hola ene.2023","role":"Editorial luxury — alianza cultural","analysis":"JO y Lauren SD co-firmaron el libro Cartagena Grace para Assouline en 2023. Convirtió relación comercial en alianza cultural documentada.","capsym":"→ cap. cultural","degree_est":"baja","bet_flag":"bajo"},{"id":"HERNANDO_CT","label":"Hernando Caicedo Toro (JD Colombina desde 1988)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":15,"region":"Valle del Cauca","source":"JD Colombina PDF BVC","role":"Interlocking JD Colombina","analysis":"Miembro JD Colombina desde 1988. Interlocking directorates verificado.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"JUAN_M_CC","label":"Juan Manuel Caicedo Capurro (JD Colombina desde 1988)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":15,"region":"Valle del Cauca","source":"JD Colombina PDF BVC","role":"Interlocking JD Colombina","analysis":"Miembro JD Colombina desde 1988. Rama Capurro de la familia.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"PATRICIA_CJ","label":"Patricia Caicedo Jaramillo (JD Colombina desde 2018)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":15,"region":"Valle del Cauca","source":"JD Colombina PDF BVC","role":"Interlocking JD Colombina","analysis":"Hermana de César Caicedo. JD desde 2018.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"JULIANA_GC","label":"Juliana Gómez Caicedo (JD Colombina desde 2017)","type":"Persona_Social","designer":"JO","color":"#2D6A4F","size":13,"region":"Valle del Cauca","source":"JD Colombina PDF BVC","role":"Interlocking JD — nueva generación","analysis":"Nueva generación Caicedo en JD. Entrada 2017.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"HILDA_MC","label":"Hilda María Caicedo Capurro (JD Colombina + Museo La Merced)","type":"Persona_Economico_Social","designer":"JO","color":"#2D6A4F","size":16,"region":"Cali","source":"JD Colombina PDF BVC","role":"Puente económico-cultural","analysis":"Posición híbrida: JD Colombina + vínculo con Museo La Merced Cali. Puente entre campo económico y campo cultural patrimonial.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"CARLOS_OC","label":"Carlos Andrés Ospina Caicedo (JD Colombina desde 2005)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":15,"region":"Valle del Cauca","source":"JD Colombina PDF BVC","role":"Interlocking JD Colombina","analysis":"Miembro JD Colombina desde 2005.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"HERNANDO_CR","label":"Hernando Caicedo Rezic (JD Colombina desde 2008)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":15,"region":"Valle del Cauca","source":"JD Colombina PDF BVC","role":"Interlocking JD Colombina","analysis":"Miembro JD Colombina desde 2008.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"MAURICIO_CA","label":"Mauricio Caicedo Aristizábal (JD Colombina desde 2006)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":15,"region":"Valle del Cauca","source":"JD Colombina PDF BVC","role":"Interlocking JD Colombina","analysis":"Miembro JD Colombina desde 2006.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"SEBASTIAN_AC","label":"Sebastián Álvarez Caicedo (JD Colombina+Riopaila)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":16,"region":"Valle del Cauca","source":"JD Colombina PDF BVC","role":"Interlocking doble Colombina+Riopaila","analysis":"Interlocking doble verificado: JD Colombina + JD Riopaila-Castilla.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"ALVARO_HC","label":"Álvaro H. Caicedo (†dic.2024) Senador+Pdte Riopaila","type":"Persona_Politico","designer":"JO","color":"#2D6A4F","size":19,"region":"Valle del Cauca","source":"El País Cali dic.2024","role":"Élite política directa — Senador","analysis":"Nodo político más directo de la red JO (aunque histórico). Senador de la República + Presidente Riopaila-Castilla. Articulación directa campo político-económico azucarero. Falleció dic. 2024.","capsym":"↔ bidireccional","degree_est":"alta","bet_flag":"ALTO"},{"id":"MARCO_C_DEP","label":"Marco Caicedo (dueño Colombina+Pdte Deportivo Cali)","type":"Persona_Economico","designer":"JO","color":"#2D6A4F","size":16,"region":"Cali","source":"Las2Orillas abr.2022","role":"Puente empresarial-deportivo","analysis":"Dueño Colombina + Presidente Deportivo Cali. Puente entre campo económico y campo deportivo.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"SIP","label":"Sociedad Interamericana de Prensa","type":"Institución_Internacional","designer":"JO","color":"#2D6A4F","size":14,"region":"Internacional","source":"El Tiempo oct.2018","role":"Institución mediática internacional","analysis":"Domínguez Lloreda fue Presidenta SIP 2018-19. Conecta JD Colombina con campo mediático latinoamericano internacional.","capsym":"→ cap. mediático internacional","degree_est":"baja","bet_flag":"bajo"},{"id":"LLOREDA_FAM","label":"Familia Lloreda Caicedo (fundadores El País Cali)","type":"Institución_Social","designer":"JO","color":"#2D6A4F","size":12,"region":"Cali","source":"Semana jun.2023","role":"Familia fundadora El País Cali","analysis":"Fundaron El País Cali en 1950. Vinculados a JD Colombina vía Domínguez Lloreda.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"BELLEZA_EX","label":"Belleza Express S.A.","type":"Empresa","designer":"JO","color":"#2D6A4F","size":13,"region":"Cali","source":"La Silla Vacía 2019","role":"Empresa retail belleza","analysis":"Juan Ramón Guzmán: gerente general Belleza Express + JD Colombina + UAV.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"COMFANDI","label":"Comfandi (Caja Compensación Familiar Valle)","type":"Institución_Social","designer":"JO","color":"#2D6A4F","size":14,"region":"Valle del Cauca","source":"JD Colombina PDF BVC","role":"Institución social laboral","analysis":"Caja de compensación más grande del Valle del Cauca. Jacobo Tovar Caicedo: Director Administrativo. Extiende la red al sector laboral y social regional.","capsym":"← recibe","degree_est":"baja","bet_flag":"MED"},{"id":"PINK_FIL","label":"Pink Filosofy (JO + Adriana Arboleda) — línea accesible","type":"Empresa","designer":"JO","color":"#2D6A4F","size":14,"region":"Cali","source":"pinkfilosofy.com","role":"Línea accesible JO — puente político","analysis":"Línea de precio accesible de JO (no lujo puro). Co-fundada con Adriana Arboleda (cuñada Alcalde Cali). NODO PUENTE entre campo de la moda y poder político municipal.","capsym":"↔ bidireccional","degree_est":"media","bet_flag":"ALTO"},{"id":"MANUELITA","label":"Grupo Manuelita","type":"Empresa","designer":"JO","color":"#2D6A4F","size":14,"region":"Valle del Cauca","source":"Semana 2020","role":"3er grupo azucarero Valle del Cauca","analysis":"Harold Eder: directivo Grupo Manuelita. Conecta la red JO con el tercer grupo azucarero del Valle.","capsym":"← capital económico","degree_est":"baja","bet_flag":"bajo"},{"id":"TALIANA_V","label":"Taliana Vargas (esposa Alcalde Eder)","type":"Persona_Social","designer":"JO","color":"#2D6A4F","size":12,"region":"Cali","source":"AgenciaPI.co","role":"Élite social — familia política","analysis":"Cónyuge del Alcalde Alejandro Eder. Exreina de belleza y actriz. Concuñada de Adriana Arboleda (socia JO).","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"DEP_CALI","label":"Deportivo Cali","type":"Institución_Social","designer":"JO","color":"#2D6A4F","size":12,"region":"Cali","source":"La Silla Vacía 2019","role":"Institución deportiva","analysis":"César Caicedo: Vicepresidente Deportivo Cali 2006. Marco Caicedo: Presidente actual.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"IMM_ADVISORY_JO","label":"Istituto Marangoni Miami — Advisory Board (JO+ST)","type":"Institución_Internacional","designer":"JO/ST","color":"#F4D03F","size":15,"region":"Miami-EEUU","source":"istitutomarangonimiami.com","role":"Advisory Board — NODO COMPARTIDO JO+ST","analysis":"NODO COMPARTIDO: JO y ST aparecen simultáneamente en el Advisory Board del Istituto Marangoni Miami. Capital educativo formativo compartido.","capsym":"→ cap. simbólico formativo","degree_est":"media","bet_flag":"MED"},{"id":"ESCUELA_JO","label":"Escuela Johanna Ortiz (programa social 2016)","type":"Institución_Social","designer":"JO","color":"#2D6A4F","size":12,"region":"Cali","source":"theorg.com; BoF500","role":"Programa social JO","analysis":"Escuela de formación artesanal fundada 2016. Redistribuye capital simbólico hacia comunidad artesanal caleña.","capsym":"→ cap. simbólico social","degree_est":"baja","bet_flag":"bajo"},{"id":"PROCOLOMBIA","label":"ProColombia (embajadora formal JO)","type":"Institución_Internacional","designer":"JO","color":"#2D6A4F","size":15,"region":"Nacional-Internacional","source":"procolombia.co; BoF500","role":"Institución diplomacia comercial","analysis":"JO es embajadora formal de ProColombia. Conexión verificada entre marca y agenda de internacionalización del Estado colombiano.","capsym":"↔ bidireccional","degree_est":"media","bet_flag":"MED"},{"id":"BEYONCE","label":"Beyoncé","type":"Persona_Internacional_ClienteElite","designer":"JO","color":"#2D6A4F","size":12,"region":"Internacional","source":"BoF500; Vogue","role":"Clienta élite — mediática global","analysis":"Artista de mayor impacto cultural global. Consagración simbólica de primer orden.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"LADY_GAGA","label":"Lady Gaga","type":"Persona_Internacional_ClienteElite","designer":"JO","color":"#2D6A4F","size":12,"region":"Internacional","source":"BoF500; Us Weekly","role":"Clienta élite — mediática global","analysis":"Artista global. Consagración simbólica mediática.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"PARIS_FW","label":"Semana de la Moda París (JO+ST)","type":"Institución_Sectorial","designer":"JO/ST","color":"#F4D03F","size":15,"region":"París","source":"co.silviatcherassi.com; BoF500","role":"Institución sectorial — NODO COMPARTIDO","analysis":"NODO COMPARTIDO JO+ST: ambas han presentado en el calendario de la Semana de la Moda de París.","capsym":"→ cap. simbólico máximo","degree_est":"media","bet_flag":"MED"},{"id":"NY_FW","label":"New York Fashion Week (JO+ST+FM)","type":"Institución_Sectorial","designer":"JO/ST/FM","color":"#F39C12","size":15,"region":"Nueva York-EEUU","source":"BoF500; audaces.com; Wikipedia EN","role":"Institución sectorial — NODO COMPARTIDO 3 REDES","analysis":"NODO COMPARTIDO 3 REDES: JO, ST y FM han presentado en NYFW. Segunda institución presente en las 3 redes junto a Colombiamoda.","capsym":"→ cap. simbólico","degree_est":"media","bet_flag":"MED"},
+{"id":"ST_MARCA","label":"Silvia Tcherassi (Marca)","type":"Marca","designer":"ST","color":"#7B2D8B","size":32,"region":"Barranquilla","source":"co.silviatcherassi.com","role":"Nodo ego central","analysis":"Concentra capital simbólico de la red ST. El flujo de capitales es INVERSO al de JO: el poder político precede y produce la marca, no al revés.","capsym":"↔ bidireccional","degree_est":"alta","bet_flag":"alto"},{"id":"ST_PERSON","label":"Silvia Tcherassi (Diseñadora)","type":"Persona_Diseñadora","designer":"ST","color":"#7B2D8B","size":28,"region":"Barranquilla","source":"El Tiempo BOCAS jul.2014","role":"Ego de red ST","analysis":"Reina Carnaval Barranquilla 1986. Primera latinoamericana en MFW y PFW. Chevalier Ordre des Arts et des Lettres (Francia 2004).","capsym":"↔ bidireccional","degree_est":"alta","bet_flag":"alto"},{"id":"MAURICIO_E","label":"Mauricio Espinosa (esposo — Dir. marketing internacional)","type":"Persona_Economico","designer":"ST","color":"#7B2D8B","size":16,"region":"Miami-Barranquilla","source":"El Tiempo BOCAS 2014","role":"Élite económica — cónyuge","analysis":"Gerente estrategia internacionalización. Abrió showrooms NY y Milán. Gestiona relaciones comerciales internacionales desde Miami.","capsym":"↔ bidireccional","degree_est":"media","bet_flag":"MED"},{"id":"SOFIA_ET","label":"Sofía Espinosa Tcherassi (hija — Dir. RTW)","type":"Persona_Social","designer":"ST","color":"#7B2D8B","size":13,"region":"Miami","source":"Istituto Marangoni Miami 2025","role":"Élite social — sucesión activa","analysis":"Directora línea RTW. Formada en Parsons y trabajó en The Row y Gabriela Hearst antes de unirse a la marca.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"MAURICIO_ET","label":"Mauricio Espinosa Tcherassi (hijo — Dir. Innovación)","type":"Persona_Economico","designer":"ST","color":"#7B2D8B","size":16,"region":"Miami","source":"Las2Orillas jul.2025","role":"Élite económica — sucesión activa","analysis":"Director Innovación y Logística desde Miami. Boda 2024 en San Miguel de Allende a la que asistió Cecilia Bolocco como invitada personal.","capsym":"← recibe","degree_est":"media","bet_flag":"MED"},{"id":"MARIEL_S","label":"Mariel Salazar Beltrán (esposa Mauricio ET)","type":"Persona_Social","designer":"ST","color":"#7B2D8B","size":11,"region":"México","source":"La Nacion Argentina abr.2024","role":"Élite social — red familiar","analysis":"Cónyuge de Mauricio Espinosa Tcherassi. Asistió Cecilia Bolocco a su boda (2024).","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"VERA_S","label":"Vera Solano de Tcherassi (madre)","type":"Persona_Social","designer":"ST","color":"#7B2D8B","size":13,"region":"Barranquilla-Miami","source":"El Tiempo BOCAS 2014","role":"Fundadora co-empresarial","analysis":"Supervisó el taller de Barranquilla durante décadas. Exgerente de banco. Estuvo en lista del Congreso 1991 con Álvaro Uribe.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"JOSE_TG","label":"José Tcherassi Guzmán (padre †2015)","type":"Persona_Politico_Hist","designer":"ST","color":"#7B2D8B","size":22,"region":"Atlántico","source":"El Heraldo 6 jul.2015","role":"NODO CLAVE: capital político precede a la marca","analysis":"INVERSIÓN DE FLUJO: el capital político del padre (Gobernador Atlántico 1973-74 + Rector cofundador Uninorte 1970-73 + Presidente Incolda 1978 + creó Área Metropolitana BQ) PRECEDE y produce la marca. Álvaro Uribe expresó condolencias y mencionó a Vera Solano en lista congreso 1991.","capsym":"→ cap. político → marca","degree_est":"alta","bet_flag":"ALTO"},{"id":"SAMUEL_T","label":"Samuel Tcherassi (hermano)","type":"Persona_Economico","designer":"ST","color":"#7B2D8B","size":22,"region":"Barranquilla","source":"La Silla Vacía dic.2024","role":"NODO MAYOR BETWEENNESS red ST","analysis":"NODO MAYOR BETWEENNESS ST: conecta moda + medios impresos (La Libertad, 2do periódico BQ) + infraestructura pública (Malecón del Río, consorcio Mota Engil) + política local (candidato alcaldía BQ 2027) + gremios (Pdte JD Cámara Comercio BQ 2012). Usa la Ordre des Arts et des Lettres de Silvia en su posicionamiento electoral.","capsym":"↔ bidireccional redistributivo","degree_est":"muy alta","bet_flag":"ALTO"},{"id":"MARIA_LT","label":"María Lucía Tcherassi (hermana — tiendas Miami)","type":"Persona_Economico","designer":"ST","color":"#7B2D8B","size":15,"region":"Miami","source":"Zona Cero 2015","role":"Élite económica — gerente Miami","analysis":"Gerente tiendas Miami. Toda la operación internacional de ST está en manos de la familia nuclear.","capsym":"← recibe","degree_est":"media","bet_flag":"bajo"},{"id":"VERA_JT","label":"Vera Judith Tcherassi (hermana)","type":"Persona_Social","designer":"ST","color":"#7B2D8B","size":11,"region":"Barranquilla","source":"Zona Cero 2015","role":"Élite social — familia","analysis":"Miembro de la red familiar Tcherassi.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"ALTAMODA","label":"Altamoda S.A.S. (NIT 800185482)","type":"Empresa","designer":"ST","color":"#7B2D8B","size":14,"region":"Barranquilla","source":"RUES activa","role":"Empresa madre Silvia Tcherassi","analysis":"NIT verificado en RUES. Patrimonio ~9.475 millones COP 2024. Empresa madre de toda la operación Tcherassi.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"EPEKA","label":"Epeka (Samuel — ropa infantil)","type":"Empresa","designer":"ST","color":"#7B2D8B","size":13,"region":"Barranquilla","source":"La Silla Vacía dic.2024","role":"Empresa hermano Samuel","analysis":"Empresa de ropa infantil de Samuel Tcherassi. Parte del portafolio empresarial diversificado del hermano.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"LA_LIBERTAD","label":"Diario La Libertad BQ (Samuel — accionista mayoritario)","type":"Empresa_Media","designer":"ST","color":"#7B2D8B","size":14,"region":"Barranquilla","source":"Cambio Colombia sept.2025","role":"Medio de comunicación impreso","analysis":"Samuel Tcherassi: accionista mayoritario del 2do periódico más leído de Barranquilla. Puente moda-medios impresos-política regional.","capsym":"← recibe","degree_est":"media","bet_flag":"ALTO"},{"id":"CONSORTIUM","label":"Consortium Infraestructura (Samuel)","type":"Empresa","designer":"ST","color":"#7B2D8B","size":13,"region":"Barranquilla","source":"La Silla Vacía dic.2024","role":"Empresa constructora","analysis":"Empresa de Samuel Tcherassi para construcción de obra pública. Contratista Malecón del Río en consorcio con Mota Engil.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"CCB_SAMUEL","label":"Cámara de Comercio BQ (Samuel — Pdte JD 2012)","type":"Institución_Gremial","designer":"ST","color":"#7B2D8B","size":14,"region":"Barranquilla","source":"La República jun.2013","role":"Poder gremial Caribe","analysis":"Samuel Tcherassi fue Presidente JD Cámara de Comercio Barranquilla 2012. Mayor posición gremial empresarial del Caribe colombiano.","capsym":"→ cap. gremial","degree_est":"media","bet_flag":"MED"},{"id":"JOSE_TG_GOB","label":"Gobernación del Atlántico (José Tcherassi 1973-74)","type":"Institución_Politica","designer":"ST","color":"#7B2D8B","size":17,"region":"Barranquilla","source":"El Heraldo 2015","role":"Capital político directo — 1er grado","analysis":"José Tcherassi Guzmán fue Gobernador del Atlántico 1973-74. Capital político directo de primer grado, sin intermediación matrimonial ni familiar de segundo grado como en JO.","capsym":"→ cap. político precede marca","degree_est":"media","bet_flag":"ALTO"},{"id":"UNINORTE","label":"Universidad del Norte BQ (padre cofundador)","type":"Institución_Educativa","designer":"ST","color":"#7B2D8B","size":14,"region":"Barranquilla","source":"Uninorte.edu.co","role":"Institución académica Caribe","analysis":"José Tcherassi: Rector cofundador Uninorte 1970-73. Vínculo con Mario Santo Domingo (Universidad del Norte). Institución académica más importante del Caribe colombiano.","capsym":"← cap. académico-institucional","degree_est":"baja","bet_flag":"MED"},{"id":"ALEX_CHAR","label":"Álex Char (Alcalde BQ)","type":"Persona_Politico","designer":"ST","color":"#7B2D8B","size":19,"region":"Barranquilla","source":"La Silla Vacía dic.2024","role":"Lazo roto (Granovetter) — ex aliado","analysis":"LAZO ROTO (Granovetter): Álex Char fue exaliado político de Samuel (lo apoyó y fue contratista de sus obras). Hoy adversario declarado para elecciones 2027. Único caso de lazo roto documentado en las 3 redes.","capsym":"lazo roto","degree_est":"media","bet_flag":"ALTO"},{"id":"ORDRES_ART","label":"Ordre des Arts et des Lettres — Francia (2004)","type":"Institución_Internacional","designer":"ST","color":"#7B2D8B","size":18,"region":"París","source":"co.silviatcherassi.com","role":"Mayor capital simbólico institucional 3 redes","analysis":"La distinción cultural más alta que otorga el gobierno francés. Equivalente al Nobel en el campo de la moda. Ninguna otra diseñadora colombiana la tiene. Samuel la usa en su posicionamiento como candidato a alcaldía 2027.","capsym":"→ cap. simbólico máximo redistributivo","degree_est":"media","bet_flag":"ALTO"},{"id":"MILAN_FW","label":"Milano Moda Donna CNMI (primera latinoamericana 2003)","type":"Institución_Sectorial","designer":"ST","color":"#7B2D8B","size":16,"region":"Milán","source":"co.silviatcherassi.com","role":"1ra latinoamericana en MFW oficial","analysis":"Primera latinoamericana en presentar en el calendario oficial de la Semana de la Moda de Milán por invitación de sus organizadores (CNMI, 2003).","capsym":"→ cap. simbólico máximo","degree_est":"media","bet_flag":"MED"},{"id":"CECILIA_B","label":"Cecilia Bolocco (clienta sostenida 23 años)","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":16,"region":"Chile-Argentina","source":"La Tercera 2017; Para Ti oct.2022; La Nacion abr.2024","role":"Nodo densidad política internacional — 23 años","analysis":"RELACIÓN SOSTENIDA MÁS LARGA: ex Miss Universo 1987 (Chile). Vistió ST para boda con Carlos Menem (Presidente Argentina 1989-1999) en 2001, la boda más vista de AL ese año. Volvió a vestir ST en boda 2022. Asistió como invitada personal a boda hijo Mauricio ET en 2024. 23 años de relación verificada. CONTRASTE: Adele-FM = mención puntual única.","capsym":"↔ bidireccional sostenida","degree_est":"media","bet_flag":"ALTO"},{"id":"CARLOS_MENEM","label":"Carlos Menem (ex Presidente Argentina †2021)","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":13,"region":"Argentina","source":"La Tercera mar.2017","role":"Capital político presidencia argentina vía Bolocco","analysis":"Presidente Argentina 1989-1999. ST diseñó el vestido de novia de Cecilia Bolocco para la boda más vista de América Latina (2001). Cap. político presidencial vía relación sostenida con Bolocco.","capsym":"→ cap. político presidencial","degree_est":"baja","bet_flag":"bajo"},{"id":"NOOR_JORDANIA","label":"Reina Noor de Jordania","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"Jordania","source":"Cromos/El Espectador","role":"Clienta élite — realeza","analysis":"Esposa del Rey Hussein de Jordania. Cap. simbólico dinástico.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"SOPHIA_VARI","label":"Sophia Vari-Botero (esposa Fernando Botero)","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"Colombia-Internacional","source":"Cromos/El Espectador","role":"Clienta élite — arte global colombiano","analysis":"Cónyuge de Fernando Botero. Conecta ST con la élite cultural-artística colombiana de mayor reconocimiento global.","capsym":"→ cap. simbólico artístico","degree_est":"baja","bet_flag":"bajo"},{"id":"SHAKIRA","label":"Shakira","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"Colombia-Internacional","source":"Cromos/El Espectador","role":"Clienta élite — artista más conocida globalmente","analysis":"Artista colombiana más conocida globalmente. Cap. simbólico musical global.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"GLORIA_ESTEFAN","label":"Gloria Estefan (vestuario gira completa)","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":13,"region":"Internacional","source":"Cromos/El Espectador","role":"Clienta élite — producción gira completa","analysis":"ST diseñó el vestuario COMPLETO de su gira internacional (no una prenda aislada). Mayor producción para clienta en las 3 redes.","capsym":"→ cap. simbólico musical","degree_est":"baja","bet_flag":"bajo"},{"id":"HILLARY_C","label":"Hillary Clinton (ex Secretaria de Estado EEUU)","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":14,"region":"EEUU","source":"Cromos/El Espectador","role":"RANGO POLÍTICO MÁS ALTO en las 3 redes","analysis":"Secretaria de Estado EEUU 2009-2013. El rango político más alto de cualquier clienta en las 3 redes: la diplomática más poderosa del mundo vistiendo una diseñadora barranquillera.","capsym":"→ cap. político máximo","degree_est":"baja","bet_flag":"MED"},{"id":"ISABEL_P","label":"Isabel Preysler","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"España","source":"Hola oct.2023","role":"Clienta élite — élite social España","analysis":"Figura de la élite social española de primer orden.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"NIEVES_A","label":"Nieves Álvarez","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"España","source":"Hola oct.2023","role":"Clienta élite — moda España","analysis":"Presentadora y modelo española de alta distinción.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"DUA_LIPA","label":"Dua Lipa (clienta 2025)","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"Internacional","source":"Audaces blog 2025","role":"Clienta élite — vigente 2025","analysis":"Artista de mayor impacto mediático 2025. Confirma vigencia y expansión de la red simbólica ST.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"JENNIFER_LOPEZ_G","label":"Jennifer López (Globos de Oro 2025)","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"Internacional","source":"Audaces blog 2025","role":"Clienta élite — vigente 2025","analysis":"Vistió ST en Globos de Oro 2025. Confirma vigencia de la red simbólica ST.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"FALABELLA","label":"Falabella (alianza 2013)","type":"Empresa","designer":"ST","color":"#7B2D8B","size":13,"region":"Colombia-Chile","source":"Audaces blog 2025","role":"Alianza retail latinoamericano","analysis":"Alianza comercial con Falabella Colombia 2013. Expansión hacia mercado latinoamericano masivo.","capsym":"↔ bidireccional","degree_est":"baja","bet_flag":"bajo"},{"id":"SWAROVSKI","label":"Swarovski (Umbridaled 2009)","type":"Empresa_Internacional","designer":"ST","color":"#7B2D8B","size":13,"region":"Internacional","source":"co.silviatcherassi.com","role":"Alianza luxury internacional","analysis":"Colaboración Swarovski Umbridaled 2009. Cap. simbólico joyería luxury europeo.","capsym":"↔ bidireccional","degree_est":"baja","bet_flag":"bajo"},{"id":"BECA_ST","label":"Beca Silvia Tcherassi (Marangoni Miami)","type":"Institución_Educativa","designer":"ST","color":"#7B2D8B","size":13,"region":"Miami","source":"Las2Orillas 2025","role":"Cap. educativo-formativo regional","analysis":"Beca de ST en Istituto Marangoni Miami para diseñadores latinoamericanos. Redistribuye capital simbólico hacia formación de nuevos talentos de la región.","capsym":"→ cap. simbólico redistributivo","degree_est":"baja","bet_flag":"bajo"},{"id":"RANDOM_HOUSE","label":"Random House (libro Elegancia Sin Esfuerzo)","type":"Empresa_Internacional","designer":"ST","color":"#7B2D8B","size":13,"region":"Internacional","source":"Wikipedia EN","role":"Editorial internacional","analysis":"Publicación de libro de ST con Random House. Cap. simbólico editorial internacional.","capsym":"→ cap. cultural","degree_est":"baja","bet_flag":"bajo"},{"id":"KAROLINA_K","label":"Karolina Kurkova (Advisory Board IMM + embajadora ST)","type":"Persona_Internacional","designer":"ST","color":"#7B2D8B","size":16,"region":"EEUU-Internacional","source":"istitutomarangonimiami.com","role":"Triple vínculo formal verificado","analysis":"TRIPLE VÍNCULO FORMAL: Advisory Board IMM + embajadora marca ST + co-lanzadora beca Colombia. Nodo puente ST ↔ IMM ↔ beca regional.","capsym":"↔ bidireccional","degree_est":"media","bet_flag":"ALTO"},{"id":"MOTA_ENGIL","label":"Mota Engil (multinacional portuguesa infraestructura)","type":"Empresa_Internacional","designer":"ST","color":"#7B2D8B","size":13,"region":"Portugal-Colombia","source":"La Silla Vacía dic.2024","role":"Socio infraestructura internacional","analysis":"Multinacional portuguesa. Socia de Samuel Tcherassi en el consorcio para el Malecón del Río Barranquilla. Conecta la red con capital internacional de infraestructura.","capsym":"→ cap. internacional","degree_est":"baja","bet_flag":"bajo"},{"id":"MALECÓN_BQ","label":"Malecón del Río Barranquilla (obra pública)","type":"Institución_Publica","designer":"ST","color":"#7B2D8B","size":12,"region":"Barranquilla","source":"La Silla Vacía dic.2024","role":"Obra pública — poder político-infraestructura","analysis":"Samuel Tcherassi: contratista del Malecón del Río en consorcio con Mota Engil. Intersección entre poder privado y bienes públicos.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"AREA_METRO_BQ","label":"Área Metropolitana de Barranquilla","type":"Institución_Politica","designer":"ST","color":"#7B2D8B","size":16,"region":"Barranquilla","source":"Zona Cero jul.2015","role":"Institución política creada por padre","analysis":"José Tcherassi creó el Área Metropolitana de Barranquilla durante su gobernación. Capital político fundacional de primer grado.","capsym":"← cap. político precede","degree_est":"media","bet_flag":"MED"},{"id":"INCOLDA","label":"Incolda (Instituto Colombiano de Administración)","type":"Institución_Gremial","designer":"ST","color":"#7B2D8B","size":13,"region":"Nacional","source":"Zona Cero 2015","role":"Gremio empresarial nacional","analysis":"José Tcherassi: Presidente Incolda 1978. Capital gremial nacional.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"TCHERASSI_H","label":"Tcherassi Hotel+Spa Cartagena (Condé Nast Traveler)","type":"Empresa","designer":"ST","color":"#7B2D8B","size":14,"region":"Cartagena","source":"co.silviatcherassi.com","role":"Extensión marca — hospitalidad luxury","analysis":"Extensión de la marca ST al sector hotelero luxury en Cartagena. Seleccionado por Condé Nast Traveler.","capsym":"↔ bidireccional","degree_est":"baja","bet_flag":"bajo"},{"id":"VALERIA_MAZZA","label":"Valeria Mazza (supermodelo argentina)","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"Argentina","source":"Cromos/El Espectador","role":"Clienta élite — Argentina","analysis":"Supermodelo argentina de alta distinción. Cap. simbólico.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"TAMARA_F_ST","label":"Tamara Falcó","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"España","source":"Hola oct.2023","role":"Clienta élite — aristocracia española","analysis":"Hija de Isabel Preysler. Aristócrata española, Marquesa de Griñón.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"OLYMPIA_GR","label":"Olimpia de Grecia","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"Grecia","source":"colombia.co","role":"Clienta élite — realeza griega","analysis":"Familia real griega. Cap. simbólico dinástico europeo.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"MAXIMA_NL","label":"Reina Máxima de los Países Bajos","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"Países Bajos","source":"colombia.co","role":"Clienta élite — realeza activa","analysis":"Reina activa de los Países Bajos. Cap. simbólico dinástico activo.","capsym":"→ cap. simbólico dinástico","degree_est":"baja","bet_flag":"bajo"},{"id":"MUSEO_MAMBA","label":"Museo Arte Moderno Barranquilla (exposición 2006)","type":"Institución_Cultural","designer":"ST","color":"#7B2D8B","size":11,"region":"Barranquilla","source":"co.silviatcherassi.com","role":"Institución cultural patrimonial","analysis":"Exposición Antología 2006. Cap. simbólico cultural-patrimonial en Barranquilla.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"REINA_CARNAVAL","label":"Reina del Carnaval BQ 1986 — Silvia Tcherassi","type":"Institución_Social","designer":"ST","color":"#7B2D8B","size":13,"region":"Barranquilla","source":"El Tiempo BOCAS jul.2014","role":"Capital social élite Barranquilla — precede a la marca","analysis":"ST fue Reina del Carnaval de Barranquilla en 1986. Este capital social precede a la marca y forma parte del capital heredado sobre el cual se construyó la empresa.","capsym":"← cap. social precede marca","degree_est":"baja","bet_flag":"bajo"},{"id":"CATEDRA_JSD","label":"Cátedra Julio Mario Santo Domingo — Uninorte","type":"Institución_Educativa","designer":"ST","color":"#7B2D8B","size":13,"region":"Barranquilla","source":"uninorte.edu.co oct.2022","role":"Conexión Santo Domingo — Uninorte","analysis":"ST participó como invitada en la cátedra oct. 2022. Vínculo padre Tcherassi — Mario Santo Domingo — Universidad del Norte conecta campos académico y empresarial Caribe.","capsym":"← cap. académico","degree_est":"baja","bet_flag":"bajo"},{"id":"HARRODS","label":"Harrods (luxury retailer Londres)","type":"Empresa_Internacional","designer":"ST","color":"#7B2D8B","size":13,"region":"Londres","source":"audaces.com; latercera.com","role":"Luxury retailer Europa","analysis":"Presencia en Harrods Londres. Cap. simbólico luxury retail europeo.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"CONDÉ_NAST","label":"Condé Nast Traveler (hotel Tcherassi)","type":"Institución_Internacional","designer":"ST","color":"#7B2D8B","size":14,"region":"Internacional","source":"co.silviatcherassi.com","role":"Validación hotelería luxury","analysis":"Condé Nast Traveler seleccionó el Tcherassi Hotel+Spa como mejor hotel. Cap. simbólico hospitalidad luxury internacional.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"PAYLESS","label":"Payless ShoeSource (alianza + Martha Stewart Show)","type":"Empresa_Internacional","designer":"ST","color":"#7B2D8B","size":13,"region":"EEUU","source":"Cromos/El Espectador","role":"Alianza luxury-masivo + TV EEUU","analysis":"Alianza calzado Payless + aparición Martha Stewart Show. Inversión simbólica: ST eleva Payless / Payless da escala masiva en EEUU.","capsym":"↔ inversión simbólica","degree_est":"baja","bet_flag":"bajo"},{"id":"AUDI_ST","label":"Audi Colombia (embajadora 2007)","type":"Empresa_Internacional","designer":"ST","color":"#7B2D8B","size":13,"region":"Colombia","source":"Blog Bicentenario BQ 2012","role":"Alianza premium automotriz","analysis":"ST fue embajadora Audi Colombia desde 2007. Cap. simbólico premium automotriz.","capsym":"↔ bidireccional","degree_est":"baja","bet_flag":"bajo"},{"id":"UNICEF_COL","label":"UNICEF Colombia (vocera campaña ST)","type":"Institución_Internacional","designer":"ST","color":"#7B2D8B","size":15,"region":"Colombia","source":"Blog Bicentenario BQ 2012","role":"Institución internacional — cap. humanitario","analysis":"ST fue vocera de campaña UNICEF Colombia. Cap. simbólico humanitario internacional.","capsym":"→ cap. institucional humanitario","degree_est":"baja","bet_flag":"bajo"},{"id":"MARTHA_STEW_SHOW","label":"Martha Stewart Show (aparición televisiva EEUU)","type":"Institución_Internacional","designer":"ST","color":"#7B2D8B","size":14,"region":"EEUU","source":"Cromos/El Espectador","role":"TV EEUU — proyección mediática","analysis":"Aparición en Martha Stewart Show. Proyección mediática en mercado norteamericano.","capsym":"→ cap. mediático","degree_est":"baja","bet_flag":"bajo"},{"id":"TAMARA_F_FALCO","label":"Tamara Falcó (aristócrata española)","type":"Persona_Internacional_ClienteElite","designer":"ST","color":"#7B2D8B","size":12,"region":"España","source":"Hola oct.2023; colombia.co","role":"Clienta élite — aristocracia española","analysis":"Marquesa de Griñón. Hija de Isabel Preysler.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},
+{"id":"FM_MARCA","label":"Francesca Miranda (Marca)","type":"Marca","designer":"FM","color":"#B5451B","size":32,"region":"Barranquilla","source":"francescamiranda.com","role":"Nodo ego central","analysis":"Produce capital simbólico pero sin red regional que lo absorba y redistribuya. Caso de contraste metodológico: demuestra qué diferencia hace la presencia o ausencia de un cluster de élite regional.","capsym":"→ disperso sin cluster","degree_est":"media","bet_flag":"bajo"},{"id":"FM_PERSON","label":"Francesca Miranda (Diseñadora)","type":"Persona_Diseñadora","designer":"FM","color":"#B5451B","size":28,"region":"Barranquilla","source":"Wikipedia EN; Cromos","role":"Ego de red FM","analysis":"Diseñadora de origen salvadoreño radicada en Colombia +30 años. Padre diplomático salvadoreño. Barranquilla como base de operaciones.","capsym":"↔ bidireccional","degree_est":"alta","bet_flag":"alto"},{"id":"FJ_PERSON","label":"Francisco Jassir (esposo)","type":"Persona_Economico","designer":"FM","color":"#B5451B","size":16,"region":"Barranquilla","source":"Wikipedia EN; TuBarco 2020","role":"Élite económica local — campo ajeno al lujo","analysis":"DESCONEXIÓN DE CAMPO: la familia Jassir opera en pastelerías y metalmecánica, campos ajenos al lujo. No hay conversión de capitales entre el campo económico familiar y el campo del lujo, a diferencia de JO (Caicedo/Colombina) y ST (Tcherassi política-medios).","capsym":"← cap. económico desconectado","degree_est":"media","bet_flag":"bajo"},{"id":"DANIELLA_JM","label":"Daniella Jassir Miranda (hija — DIRIGE la marca)","type":"Persona_Social","designer":"FM","color":"#B5451B","size":16,"region":"Barranquilla","source":"Wikipedia EN; Culturas de Moda 2018","role":"SUCESIÓN CONSUMADA — único caso 3 redes","analysis":"ÚNICO CASO DE SUCESIÓN CONSUMADA en las 3 redes: Daniella ya dirige la marca (no está en transición). En JO los hijos son menores; en ST los hijos trabajan pero Silvia sigue siendo la figura central; en FM la hija ya dirige.","capsym":"↔ bidireccional generacional","degree_est":"media","bet_flag":"MED"},{"id":"FRANCISCO_JM","label":"Francisco Jassir Miranda (hijo)","type":"Persona_Social","designer":"FM","color":"#B5451B","size":11,"region":"Barranquilla","source":"Wikipedia EN","role":"Élite social — familia","analysis":"Miembro de la red familiar Jassir-Miranda.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"ANDREA_JM","label":"Andrea Sofía Jassir Miranda (hija)","type":"Persona_Social","designer":"FM","color":"#B5451B","size":11,"region":"Barranquilla","source":"Wikipedia EN","role":"Élite social — familia","analysis":"Miembro de la red familiar Jassir-Miranda.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"RUY_MIRANDA","label":"Ruy César Miranda Lupone (padre — político El Salvador)","type":"Persona_Politico_Hist","designer":"FM","color":"#B5451B","size":16,"region":"El Salvador","source":"Wikipedia EN","role":"Capital político histórico 2do grado centroamericano","analysis":"Abogado y político salvadoreño-italiano con carrera diplomática documentada. CONTRASTE con ST: capital político de 2do grado (herencia, no ejercicio directo) y centroamericano (no colombiano regional). Confirma hipótesis: sin capital político regional no hay reconfiguración local.","capsym":"← cap. político 2do grado","degree_est":"media","bet_flag":"MED"},{"id":"GLORIA_M","label":"Gloria González de Miranda (madre)","type":"Persona_Social","designer":"FM","color":"#B5451B","size":11,"region":"Ohio-EEUU","source":"Wikipedia EN; Fucsia 2013","role":"Élite social — familia","analysis":"Madre de FM. Familia de origen salvadoreño con raíces en Ohio.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"JASSIR_FAM","label":"Familia Jassir Barranquilla","type":"Institución_Social","designer":"FM","color":"#B5451B","size":13,"region":"Barranquilla","source":"TuBarco 2020","role":"Núcleo económico local desconectado del lujo","analysis":"DATO ESTRUCTURAL CLAVE: La familia Jassir opera en pastelerías y metalmecánica. Su capital económico no se convierte en cap. simbólico de lujo, al contrario de JO (Caicedo→Colombina) y ST (Tcherassi→moda-política-medios).","capsym":"← cap. económico local no convertible","degree_est":"baja","bet_flag":"bajo"},{"id":"PASTEL_J","label":"Pastelería Jassir S.A.S. (ventas 10-20M COP anuales)","type":"Empresa","designer":"FM","color":"#B5451B","size":13,"region":"Barranquilla","source":"informacolombia.com; RUES","role":"Empresa familiar — campo ajeno al lujo","analysis":"Fundada 1993 por Margarita Saieh de Jassir. Ventas 10-20M COP anuales. Campo totalmente ajeno al lujo. No hay conversión de capitales.","capsym":"← cap. económico no convertible","degree_est":"baja","bet_flag":"bajo"},{"id":"JASSIR_DIST","label":"Jassir Distributors S.A.S. (metalmecánica)","type":"Empresa","designer":"FM","color":"#B5451B","size":13,"region":"Barranquilla","source":"einforma.co; RUES","role":"Empresa familiar — metalmecánica","analysis":"Distribución West Arco, ESAB, Saint Gobain. Campo metalmecánico sin ninguna conexión con el campo del lujo.","capsym":"← cap. económico no convertible","degree_est":"baja","bet_flag":"bajo"},{"id":"FM_BTQ_BQ","label":"Boutique FM Barranquilla (sede principal)","type":"Empresa","designer":"FM","color":"#B5451B","size":13,"region":"Barranquilla","source":"francescamiranda.com","role":"Infraestructura comercial principal","analysis":"Sede principal de la marca. Base de operaciones Barranquilla.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"FM_BOGOTA","label":"Boutique FM Bogotá (2001)","type":"Empresa","designer":"FM","color":"#B5451B","size":13,"region":"Bogotá","source":"Wikipedia EN","role":"Expansión comercial nacional","analysis":"Apertura boutique Bogotá 2001. Expansión al mercado capitalino.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"FM_SAL_SV","label":"Boutique FM San Salvador (2005)","type":"Empresa","designer":"FM","color":"#B5451B","size":13,"region":"El Salvador","source":"Mujeres ElSalvador 2011","role":"Expansión transnacional El Salvador","analysis":"Apertura boutique San Salvador 2005. Vínculo con país de origen del padre. Dimensión transnacional sin cluster élite local.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"FM_PANAM","label":"Boutique FM Panamá","type":"Empresa","designer":"FM","color":"#B5451B","size":13,"region":"Panamá","source":"El Diario de Hoy oct.2005","role":"Expansión transnacional Panamá","analysis":"Presencia en Panamá. Dimensión transnacional sin articulación estructural con élite regional colombiana.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"FASHION_TV_P","label":"Fashion TV Paris (Premio Best Runway 2001)","type":"Institución_Internacional","designer":"FM","color":"#B5451B","size":14,"region":"París","source":"Wikipedia EN","role":"Premio internacional — cap. simbólico puntual","analysis":"Premio Best Runway Miami Fashion Week 2001 por Fashion TV Paris. Cap. simbólico puntual. No sostenido estructuralmente.","capsym":"→ cap. simbólico puntual","degree_est":"baja","bet_flag":"bajo"},{"id":"INSIDE_WED","label":"Inside Weddings Magazine (portada 2013)","type":"Empresa_Internacional","designer":"FM","color":"#B5451B","size":12,"region":"EEUU","source":"Fucsia 2013","role":"Medio nupcial EEUU","analysis":"Portada Inside Weddings 2013. Cap. simbólico nupcial puntual.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"GROUP_868","label":"Group 868 Inc. showroom NY (EEUU+Canadá desde 2010)","type":"Empresa_Internacional","designer":"FM","color":"#B5451B","size":15,"region":"Nueva York-EEUU","source":"Wikipedia EN; Culturas de Moda 2018","role":"ÚNICO nodo inserción formal EEUU red FM","analysis":"Representante comercial FM en EEUU y Canadá desde 2010. Socio para colección nupcial. ÚNICO nodo de inserción formal en mercado norteamericano. Sin conversión en cap. estructural: no genera red regional.","capsym":"→ cap. comercial sin anclaje","degree_est":"media","bet_flag":"MED"},{"id":"FUSATE","label":"Fundación Salvadoreña Tercera Edad","type":"Institución_Social","designer":"FM","color":"#B5451B","size":11,"region":"El Salvador","source":"El Diario de Hoy oct.2005","role":"Institución social El Salvador","analysis":"Desfile benéfico para Fundación El Salvador 2005. Cap. simbólico social puntual transnacional.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"FEDCO","label":"FEDCO Colombia (fragancia Trust)","type":"Empresa","designer":"FM","color":"#B5451B","size":13,"region":"Nacional","source":"Cromos/El Espectador","role":"Alianza retail nacional","analysis":"Alianza fragancia Trust con FEDCO. Inserción en retail nacional.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"ALMAC_EXITO","label":"Almacenes Éxito (línea lencería)","type":"Empresa","designer":"FM","color":"#B5451B","size":13,"region":"Nacional","source":"Cromos/El Espectador","role":"Alianza retail masivo nacional","analysis":"Línea lencería con Almacenes Éxito. Inserción en retail masivo nacional. Sin articulación con élites.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"PARIS_PRES_FM","label":"Presentaciones en París (FM)","type":"Institución_Sectorial","designer":"FM","color":"#B5451B","size":14,"region":"París","source":"Cromos; El Diario de Hoy 2005","role":"Plataforma internacional","analysis":"Presentaciones en París. Cap. simbólico no articulado estructuralmente. Contrasta con ST (primera latinoamericana calendario oficial PFW).","capsym":"→ cap. simbólico no articulado","degree_est":"baja","bet_flag":"bajo"},{"id":"ADELE_GLAM","label":"Adele (vestido novia / Glamour 2015)","type":"Persona_Internacional_ClienteElite","designer":"FM","color":"#B5451B","size":12,"region":"Internacional","source":"Wikipedia EN","role":"Clienta puntual — CONTRASTE con Bolocco-ST","analysis":"CONTRASTE METODOLÓGICO: Adele eligió vestido FM para artículo Glamour 2015. UNA mención puntual. No volvió a aparecer como clienta. CONTRASTE: Cecilia Bolocco-ST = 23 años de relación sostenida verificada. Ilustra diferencia entre cap. simbólico puntual vs. cap. relacional estructural.","capsym":"→ cap. simbólico puntual NO sostenido","degree_est":"baja","bet_flag":"bajo"},{"id":"ELISABETH_ROHM","label":"Elisabeth Röhm (actriz EEUU)","type":"Persona_Internacional_ClienteElite","designer":"FM","color":"#B5451B","size":11,"region":"EEUU","source":"Wikipedia EN","role":"Clienta élite — mención puntual","analysis":"Actriz norteamericana. Mención puntual. No relación sostenida.","capsym":"→ cap. simbólico puntual","degree_est":"baja","bet_flag":"bajo"},{"id":"SHENAE_GRIMES","label":"Shenae Grimes (actriz)","type":"Persona_Internacional_ClienteElite","designer":"FM","color":"#B5451B","size":11,"region":"Internacional","source":"Wikipedia EN","role":"Clienta élite — mención puntual","analysis":"Actriz. Mención puntual. No relación sostenida.","capsym":"→ cap. simbólico puntual","degree_est":"baja","bet_flag":"bajo"},{"id":"RCIE_AMBAS","label":"Trayectoria política Ruy Miranda (El Salvador)","type":"Institución_Politica","designer":"FM","color":"#B5451B","size":14,"region":"Centroamérica","source":"Wikipedia EN","role":"Capital político 2do grado centroamericano","analysis":"Carrera diplomática documentada del padre. Capital político centroamericano. Sin conexión con élites políticas colombianas regionales.","capsym":"← cap. político 2do grado","degree_est":"baja","bet_flag":"bajo"},{"id":"XANGO_BRAND","label":"Xango (marca inicial FM 1994-1997)","type":"Empresa","designer":"FM","color":"#B5451B","size":12,"region":"Barranquilla","source":"Wikipedia EN","role":"Marca histórica inicial","analysis":"Primera marca de FM (masculina, 1994-1997). Histórico fundacional.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"CITY_PEOPLE","label":"City People (línea femenina FM desde 2000)","type":"Empresa","designer":"FM","color":"#B5451B","size":12,"region":"Barranquilla","source":"Wikipedia EN","role":"Línea femenina","analysis":"Línea femenina FM desde 2000. Extensión de marca.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"CARTAGENA_BTQ","label":"Boutique FM Cartagena (nov.2010)","type":"Empresa","designer":"FM","color":"#B5451B","size":12,"region":"Cartagena","source":"Wikipedia EN","role":"Expansión comercial nacional","analysis":"Apertura boutique Cartagena nov. 2010. Expansión a destino turístico élite.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"MIAMI_FW","label":"Miami Fashion Week (FM — Premio 2001)","type":"Institución_Sectorial","designer":"FM","color":"#B5451B","size":14,"region":"Miami-EEUU","source":"Wikipedia EN","role":"Plataforma moda Miami","analysis":"Premio Best Runway Miami FW 2001. Cap. simbólico plataforma. No articulado estructuralmente.","capsym":"→ cap. simbólico","degree_est":"baja","bet_flag":"bajo"},{"id":"USF","label":"University of South Florida","type":"Institución_Educativa","designer":"FM","color":"#B5451B","size":11,"region":"Florida-EEUU","source":"Wikipedia EN","role":"Formación","analysis":"Formación universitaria FM en EEUU.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"LAKELAND_C","label":"Lakeland College Florida","type":"Institución_Educativa","designer":"FM","color":"#B5451B","size":11,"region":"Florida-EEUU","source":"Wikipedia EN","role":"Formación","analysis":"Formación FM en Florida.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"},{"id":"ESCUELA_FM","label":"Escuela de Diseño Francesca Miranda BQ","type":"Institución_Educativa","designer":"FM","color":"#B5451B","size":13,"region":"Barranquilla","source":"Fucsia dic.2013","role":"Escuela de diseño FM","analysis":"Escuela de diseño fundada por FM en Barranquilla. Alianza no formalizada con holding español.","capsym":"→ cap. simbólico educativo local","degree_est":"baja","bet_flag":"bajo"},{"id":"HOLDING_ESP","label":"Holding español (alianza educativa Escuela FM)","type":"Empresa_Internacional","designer":"FM","color":"#B5451B","size":12,"region":"España","source":"Fucsia 2013","role":"Alianza educativa no formalizada","analysis":"Alianza educativa con holding español para la Escuela FM. Sin estructura jurídica verificada formalmente.","capsym":"→ cap. educativo","degree_est":"baja","bet_flag":"bajo"},{"id":"KONG_HK","label":"Mercado Hong Kong / exportación Asia 2013","type":"Empresa_Internacional","designer":"FM","color":"#B5451B","size":12,"region":"Hong Kong-Asia","source":"Fucsia 2013","role":"Expansión Asia — sin articulación estructural","analysis":"Exportación a Hong Kong 2013. Cap. comercial sin articulación estructural en mercado asiático.","capsym":"→ cap. comercial no articulado","degree_est":"baja","bet_flag":"bajo"},{"id":"FM_CARTAGENA_BTQ","label":"Boutique FM Cartagena (élite turística)","type":"Empresa","designer":"FM","color":"#B5451B","size":12,"region":"Cartagena","source":"Wikipedia EN","role":"Punto de venta turístico","analysis":"Boutique en Cartagena orientada a élite turística internacional.","capsym":"← recibe","degree_est":"baja","bet_flag":"bajo"}];
+
+const RAW_EDGES=[{"source":"JO_PERSON","target":"JO_MARCA","weight":3,"type":"Fundadora-Directora","designer":"JO"},{"source":"JO_PERSON","target":"CC_PERSON","weight":3,"type":"Familia-Cónyuge","designer":"JO"},{"source":"JO_PERSON","target":"PAOLA_O","weight":3,"type":"Familia-Hermana","designer":"JO"},{"source":"PAOLA_O","target":"JO_MARCA","weight":2,"type":"Societario-Socia","designer":"JO"},{"source":"JO_PERSON","target":"LUKAS_C","weight":3,"type":"Familia-Madre","designer":"JO"},{"source":"JO_PERSON","target":"JOAQUIN_C","weight":3,"type":"Familia-Madre","designer":"JO"},{"source":"JO_PERSON","target":"LORENZO_C","weight":3,"type":"Familia-Madre","designer":"JO"},{"source":"HERNANDO_C1","target":"JAIME_HC","weight":3,"type":"Genealogía-fundacional","designer":"JO"},{"source":"JAIME_HC","target":"JAIME_H_C","weight":3,"type":"Genealogía-fundacional","designer":"JO"},{"source":"JAIME_H_C","target":"CC_PERSON","weight":3,"type":"Genealogía-fundacional","designer":"JO"},{"source":"HERNANDO_C1","target":"COLOMBINA","weight":3,"type":"Societario-Fundador","designer":"JO"},{"source":"HERNANDO_C1","target":"RIOPAILA","weight":3,"type":"Societario-Fundador","designer":"JO"},{"source":"CC_PERSON","target":"COLOMBINA","weight":3,"type":"Societario-Presidente","designer":"JO"},{"source":"CC_PERSON","target":"RIOPAILA","weight":2,"type":"Societario-JD familiar","designer":"JO"},{"source":"HILDA_CAPURRO","target":"COLOMBINA","weight":3,"type":"Accionista-16,19%","designer":"JO"},{"source":"LUMUMBA_SAS","target":"COLOMBINA","weight":3,"type":"Accionista-10,34%","designer":"JO"},{"source":"FIDEI_FARALLONES","target":"COLOMBINA","weight":3,"type":"Fideicomiso-10,02%","designer":"JO"},{"source":"FIDEI_VALLE","target":"COLOMBINA","weight":3,"type":"Fideicomiso-10,02%","designer":"JO"},{"source":"FIDEI_CALI","target":"COLOMBINA","weight":2,"type":"Fideicomiso-8,73%","designer":"JO"},{"source":"CARE_TRUST","target":"COLOMBINA","weight":3,"type":"Fideicomiso-offshore-8,42%","designer":"JO"},{"source":"FIDEI_BAMFA","target":"COLOMBINA","weight":3,"type":"Fideicomiso-8,04%","designer":"JO"},{"source":"BELISARIO_CC","target":"COLOMBINA","weight":2,"type":"Interlocking-JD Colombina","designer":"JO"},{"source":"BELISARIO_CC","target":"RIOPAILA","weight":2,"type":"Interlocking-JD Riopaila","designer":"JO"},{"source":"MARCO_A_CJ","target":"COLOMBINA","weight":2,"type":"Interlocking-JD Colombina","designer":"JO"},{"source":"MARCO_A_CJ","target":"RIOPAILA","weight":2,"type":"Interlocking-JD Riopaila","designer":"JO"},{"source":"JACOBO_TC","target":"COLOMBINA","weight":2,"type":"Interlocking-JD Colombina","designer":"JO"},{"source":"JACOBO_TC","target":"RIOPAILA","weight":2,"type":"Interlocking-JD Riopaila","designer":"JO"},{"source":"JACOBO_TC","target":"COMFANDI","weight":2,"type":"Institucional-Director Administrativo Comfandi","designer":"JO"},{"source":"MATEO_SC","target":"COLOMBINA","weight":2,"type":"Interlocking-JD 2023-CSM Fashion London","designer":"JO"},{"source":"MEDOMI_LL","target":"COLOMBINA","weight":2,"type":"Interlocking-JD Colombina","designer":"JO"},{"source":"MEDOMI_LL","target":"EL_PAIS_CALI","weight":3,"type":"Societario-Directora El País 2007-2023","designer":"JO"},{"source":"MEDOMI_LL","target":"SIP","weight":2,"type":"Institucional-Presidenta SIP 2018-19","designer":"JO"},{"source":"JUAN_R_G","target":"COLOMBINA","weight":2,"type":"Interlocking-JD Colombina","designer":"JO"},{"source":"JUAN_R_G","target":"UAV","weight":2,"type":"Institucional-Cofundador UAV","designer":"JO"},{"source":"JUAN_R_G","target":"BELLEZA_EX","weight":3,"type":"Societario-Gerente General Belleza Express","designer":"JO"},{"source":"CC_PERSON","target":"ANDI_JD","weight":2,"type":"Institucional-Presidente ANDI Valle 2019","designer":"JO"},{"source":"CC_PERSON","target":"UAV","weight":2,"type":"Institucional-1er Vicepresidente UAV","designer":"JO"},{"source":"CC_PERSON","target":"ALIANZA_PAC","weight":2,"type":"Institucional-Consejo Empresarial 2019","designer":"JO"},{"source":"CC_PERSON","target":"DEP_CALI","weight":2,"type":"Institucional-Vicepresidente Deportivo Cali 2006","designer":"JO"},{"source":"DILLIAN_T","target":"CC_PERSON","weight":1,"type":"Institucional-Recomendó para Alianza Pacífico 2019","designer":"JO"},{"source":"ADRIANA_A","target":"HAROLD_E","weight":3,"type":"Familia-Cónyuge","designer":"JO"},{"source":"HAROLD_E","target":"ALEJANDRO_E","weight":3,"type":"Familia-Hermano","designer":"JO"},{"source":"HAROLD_E","target":"MANUELITA","weight":3,"type":"Societario-Directivo Manuelita","designer":"JO"},{"source":"JO_PERSON","target":"ADRIANA_A","weight":2,"type":"Alianza-Cofundadora Pink Filosofy","designer":"JO"},{"source":"ADRIANA_A","target":"PINK_FIL","weight":3,"type":"Societario-Directora Creativa Pink Filosofy","designer":"JO"},{"source":"JO_MARCA","target":"PINK_FIL","weight":2,"type":"Societario-Cofundadora línea accesible","designer":"JO"},{"source":"TALIANA_V","target":"ALEJANDRO_E","weight":3,"type":"Familia-Cónyuge","designer":"JO"},{"source":"ADRIANA_A","target":"TALIANA_V","weight":1,"type":"Familia política-concuñadas","designer":"JO"},{"source":"LAUREN_SD","target":"ANDRES_SD","weight":3,"type":"Familia-Cónyuge","designer":"JO"},{"source":"ANDRES_SD","target":"BEVCO_SD","weight":3,"type":"Societario-Heredero Grupo SD","designer":"JO"},{"source":"ANDRES_SD","target":"ALEJANDRO_SD","weight":3,"type":"Familia-Hermano","designer":"JO"},{"source":"ALEJANDRO_SD","target":"BEVCO_SD","weight":3,"type":"Societario-Chairman Bavaria+AB InBev+Valorem","designer":"JO"},{"source":"LAUREN_SD","target":"MODA_OP","weight":3,"type":"Societario-Cofundadora Moda Operandi","designer":"JO"},{"source":"JO_MARCA","target":"MODA_OP","weight":2,"type":"Comercial-Luxury retailer principal desde 2014","designer":"JO"},{"source":"JO_MARCA","target":"LAUREN_SD","weight":2,"type":"Alianza-Curadora+co-autora libro Assouline 2023","designer":"JO"},{"source":"LAUREN_SD","target":"ASSOULINE","weight":2,"type":"Alianza-Co-autora Cartagena Grace 2023","designer":"JO"},{"source":"JO_MARCA","target":"ASSOULINE","weight":2,"type":"Alianza-Co-autora Cartagena Grace 2023","designer":"JO"},{"source":"JO_MARCA","target":"MEGHAN_M","weight":1,"type":"Cliente-élite","designer":"JO"},{"source":"JO_MARCA","target":"RANIA_J","weight":1,"type":"Cliente-élite NODO COMPARTIDO JO+ST","designer":"JO"},{"source":"JO_MARCA","target":"CAROLINA_MONACO","weight":1,"type":"Cliente-élite","designer":"JO"},{"source":"JO_MARCA","target":"MICHELLE_O","weight":1,"type":"Cliente-élite","designer":"JO"},{"source":"JO_MARCA","target":"AMAL_C","weight":1,"type":"Cliente-élite","designer":"JO"},{"source":"JO_MARCA","target":"IVANKA_T","weight":1,"type":"Cliente-élite","designer":"JO"},{"source":"JO_MARCA","target":"SOFIA_V","weight":1,"type":"Cliente-élite","designer":"JO"},{"source":"JO_MARCA","target":"BEYONCE","weight":1,"type":"Cliente-élite","designer":"JO"},{"source":"JO_MARCA","target":"LADY_GAGA","weight":1,"type":"Cliente-élite","designer":"JO"},{"source":"JO_MARCA","target":"BERGDORF","weight":2,"type":"Comercial-Luxury retailer NY","designer":"JO"},{"source":"JO_MARCA","target":"NET_PORTER","weight":2,"type":"Comercial-Luxury retailer","designer":"JO"},{"source":"JO_MARCA","target":"HM_COLAB","weight":2,"type":"Alianza-Capsule H&M 2019","designer":"JO"},{"source":"JO_MARCA","target":"COLOMBIAMODA","weight":2,"type":"Institucional-Apertura 30 aniversario","designer":"JO"},{"source":"JO_MARCA","target":"ZONA_FRANCA","weight":2,"type":"Institucional-Planta producción","designer":"JO"},{"source":"JO_MARCA","target":"PARIS_FW","weight":2,"type":"Institucional-Presentaciones París","designer":"JO"},{"source":"JO_MARCA","target":"NY_FW","weight":2,"type":"Institucional-Presentaciones NYFW","designer":"JO"},{"source":"JO_PERSON","target":"PROCOLOMBIA","weight":2,"type":"Institucional-Embajadora formal ProColombia","designer":"JO"},{"source":"JO_PERSON","target":"IMM_ADVISORY_JO","weight":2,"type":"Institucional-Advisory Board Marangoni Miami","designer":"JO"},{"source":"JO_MARCA","target":"ESCUELA_JO","weight":2,"type":"Institucional-Fundadora Escuela Social 2016","designer":"JO"},{"source":"HERNANDO_CT","target":"COLOMBINA","weight":2,"type":"Interlocking-JD desde 1988","designer":"JO"},{"source":"JUAN_M_CC","target":"COLOMBINA","weight":2,"type":"Interlocking-JD desde 1988","designer":"JO"},{"source":"PATRICIA_CJ","target":"COLOMBINA","weight":2,"type":"Interlocking-JD desde 2018","designer":"JO"},{"source":"JULIANA_GC","target":"COLOMBINA","weight":2,"type":"Interlocking-JD desde 2017","designer":"JO"},{"source":"HILDA_MC","target":"COLOMBINA","weight":2,"type":"Interlocking-JD+Museo La Merced","designer":"JO"},{"source":"CARLOS_OC","target":"COLOMBINA","weight":2,"type":"Interlocking-JD desde 2005","designer":"JO"},{"source":"HERNANDO_CR","target":"COLOMBINA","weight":2,"type":"Interlocking-JD desde 2008","designer":"JO"},{"source":"MAURICIO_CA","target":"COLOMBINA","weight":2,"type":"Interlocking-JD desde 2006","designer":"JO"},{"source":"SEBASTIAN_AC","target":"COLOMBINA","weight":2,"type":"Interlocking-JD Colombina","designer":"JO"},{"source":"SEBASTIAN_AC","target":"RIOPAILA","weight":2,"type":"Interlocking-JD Riopaila","designer":"JO"},{"source":"ALVARO_HC","target":"RIOPAILA","weight":3,"type":"Societario-Presidente Riopaila","designer":"JO"},{"source":"MARCO_C_DEP","target":"COLOMBINA","weight":3,"type":"Societario-Dueño Colombina","designer":"JO"},{"source":"MARCO_C_DEP","target":"DEP_CALI","weight":2,"type":"Institucional-Presidente Deportivo Cali","designer":"JO"},{"source":"EL_PAIS_CALI","target":"LLOREDA_FAM","weight":3,"type":"Societario-Familia fundadora El País 1950","designer":"JO"},
+{"source":"ST_PERSON","target":"ST_MARCA","weight":3,"type":"Fundadora-Directora","designer":"ST"},{"source":"ST_PERSON","target":"MAURICIO_E","weight":3,"type":"Familia-Cónyuge","designer":"ST"},{"source":"MAURICIO_E","target":"ST_MARCA","weight":3,"type":"Societario-Dir.marketing internacional","designer":"ST"},{"source":"ST_PERSON","target":"SOFIA_ET","weight":3,"type":"Familia-Hija","designer":"ST"},{"source":"SOFIA_ET","target":"ST_MARCA","weight":3,"type":"Societario-Directora RTW","designer":"ST"},{"source":"ST_PERSON","target":"MAURICIO_ET","weight":3,"type":"Familia-Hijo","designer":"ST"},{"source":"MAURICIO_ET","target":"ST_MARCA","weight":3,"type":"Societario-Dir.Innovación","designer":"ST"},{"source":"MAURICIO_ET","target":"MARIEL_S","weight":3,"type":"Familia-Cónyuge (boda 2024 San Miguel Allende)","designer":"ST"},{"source":"ST_PERSON","target":"VERA_S","weight":3,"type":"Familia-Hija","designer":"ST"},{"source":"VERA_S","target":"ST_MARCA","weight":2,"type":"Institucional-Supervisora taller BQ","designer":"ST"},{"source":"ST_PERSON","target":"JOSE_TG","weight":3,"type":"Familia-Hija","designer":"ST"},{"source":"JOSE_TG","target":"JOSE_TG_GOB","weight":3,"type":"Institucional-Gobernador Atlántico 1973-74","designer":"ST"},{"source":"JOSE_TG","target":"UNINORTE","weight":3,"type":"Institucional-Rector cofundador 1970-73","designer":"ST"},{"source":"JOSE_TG","target":"AREA_METRO_BQ","weight":2,"type":"Institucional-Creador Área Metropolitana BQ","designer":"ST"},{"source":"JOSE_TG","target":"INCOLDA","weight":2,"type":"Institucional-Presidente Incolda 1978","designer":"ST"},{"source":"ST_PERSON","target":"SAMUEL_T","weight":3,"type":"Familia-Hermana","designer":"ST"},{"source":"SAMUEL_T","target":"EPEKA","weight":3,"type":"Societario-Dueño Epeka","designer":"ST"},{"source":"SAMUEL_T","target":"LA_LIBERTAD","weight":2,"type":"Societario-Accionista mayoritario La Libertad","designer":"ST"},{"source":"SAMUEL_T","target":"CONSORTIUM","weight":3,"type":"Societario-Dueño Consortium","designer":"ST"},{"source":"SAMUEL_T","target":"ALEX_CHAR","weight":1,"type":"Lazo roto-Exaliado político adversario 2027","designer":"ST"},{"source":"SAMUEL_T","target":"CCB_SAMUEL","weight":2,"type":"Institucional-Presidente JD Cámara Comercio BQ 2012","designer":"ST"},{"source":"SAMUEL_T","target":"MALECÓN_BQ","weight":2,"type":"Institucional-Contratista Malecón del Río","designer":"ST"},{"source":"CONSORTIUM","target":"MOTA_ENGIL","weight":2,"type":"Societario-Consorcio obra Malecón BQ","designer":"ST"},{"source":"ST_PERSON","target":"MARIA_LT","weight":3,"type":"Familia-Hermana","designer":"ST"},{"source":"MARIA_LT","target":"ST_MARCA","weight":2,"type":"Societario-Gerente tiendas Miami","designer":"ST"},{"source":"ST_PERSON","target":"VERA_JT","weight":3,"type":"Familia-Hermana","designer":"ST"},{"source":"ST_MARCA","target":"ALTAMODA","weight":3,"type":"Societario-Empresa madre RUES NIT 800185482","designer":"ST"},{"source":"ST_MARCA","target":"ORDRES_ART","weight":1,"type":"Institucional-Chevalier Ordre des Arts et des Lettres Francia 2004","designer":"ST"},{"source":"ST_MARCA","target":"MILAN_FW","weight":2,"type":"Institucional-Invitada oficial CNMI 2003 primera latinoamericana","designer":"ST"},{"source":"ST_MARCA","target":"PARIS_FW","weight":2,"type":"Institucional-Invitada Fédération PFW 2004","designer":"ST"},{"source":"ST_MARCA","target":"NY_FW","weight":2,"type":"Institucional-Presentaciones NYFW","designer":"ST"},{"source":"ST_MARCA","target":"SWAROVSKI","weight":2,"type":"Alianza-Umbridaled Swarovski 2009","designer":"ST"},{"source":"ST_MARCA","target":"FALABELLA","weight":2,"type":"Alianza-Colombiamoda Falabella 2013","designer":"ST"},{"source":"ST_MARCA","target":"HARRODS","weight":2,"type":"Comercial-Luxury retailer Harrods Londres","designer":"ST"},{"source":"ST_MARCA","target":"PAYLESS","weight":2,"type":"Alianza-Calzado Payless+Martha Stewart Show EEUU","designer":"ST"},{"source":"ST_MARCA","target":"MARTHA_STEW_SHOW","weight":1,"type":"Institucional-Aparición televisiva Martha Stewart Show EEUU","designer":"ST"},{"source":"ST_MARCA","target":"AUDI_ST","weight":1,"type":"Alianza-Embajadora Audi Colombia desde 2007","designer":"ST"},{"source":"ST_MARCA","target":"UNICEF_COL","weight":1,"type":"Alianza-Vocera campaña UNICEF Colombia","designer":"ST"},{"source":"ST_MARCA","target":"MODA_OP","weight":2,"type":"Comercial-Luxury e-tailer Moda Operandi","designer":"ST"},{"source":"ST_MARCA","target":"NET_PORTER","weight":2,"type":"Comercial-Luxury e-tailer Net-a-Porter","designer":"ST"},{"source":"CECILIA_B","target":"ST_MARCA","weight":1,"type":"Cliente-élite sostenida 23 años 2001-2024","designer":"ST"},{"source":"CECILIA_B","target":"CARLOS_MENEM","weight":3,"type":"Familia-Exesposa boda 2001 televisada AL","designer":"ST"},{"source":"CECILIA_B","target":"MAURICIO_ET","weight":1,"type":"Invitada personal boda 2024 San Miguel Allende","designer":"ST"},{"source":"NOOR_JORDANIA","target":"ST_MARCA","weight":1,"type":"Cliente-élite","designer":"ST"},{"source":"SOPHIA_VARI","target":"ST_MARCA","weight":1,"type":"Cliente-élite","designer":"ST"},{"source":"SHAKIRA","target":"ST_MARCA","weight":1,"type":"Cliente-élite","designer":"ST"},{"source":"GLORIA_ESTEFAN","target":"ST_MARCA","weight":1,"type":"Cliente-élite vestuario gira completa","designer":"ST"},{"source":"HILLARY_C","target":"ST_MARCA","weight":1,"type":"Cliente-élite rango político más alto 3 redes","designer":"ST"},{"source":"ISABEL_P","target":"ST_MARCA","weight":1,"type":"Cliente-élite","designer":"ST"},{"source":"NIEVES_A","target":"ST_MARCA","weight":1,"type":"Cliente-élite","designer":"ST"},{"source":"RANIA_J","target":"ST_MARCA","weight":1,"type":"Cliente-élite NODO COMPARTIDO JO+ST","designer":"ST"},{"source":"DUA_LIPA","target":"ST_MARCA","weight":1,"type":"Cliente-élite 2025","designer":"ST"},{"source":"JENNIFER_LOPEZ_G","target":"ST_MARCA","weight":1,"type":"Cliente-élite Globos de Oro 2025","designer":"ST"},{"source":"VALERIA_MAZZA","target":"ST_MARCA","weight":1,"type":"Cliente-élite","designer":"ST"},{"source":"TAMARA_F_ST","target":"ST_MARCA","weight":1,"type":"Cliente-élite España","designer":"ST"},{"source":"OLYMPIA_GR","target":"ST_MARCA","weight":1,"type":"Cliente-élite royalty griega","designer":"ST"},{"source":"MAXIMA_NL","target":"ST_MARCA","weight":1,"type":"Cliente-élite royalty activa","designer":"ST"},{"source":"TAMARA_F_FALCO","target":"ST_MARCA","weight":1,"type":"Cliente-élite aristocracia española","designer":"ST"},{"source":"IMM_ADVISORY_JO","target":"BECA_ST","weight":2,"type":"Institucional-Sede beca Marangoni Miami","designer":"ST"},{"source":"ST_MARCA","target":"BECA_ST","weight":2,"type":"Institucional-Fundadora beca Marangoni","designer":"ST"},{"source":"ST_MARCA","target":"RANDOM_HOUSE","weight":1,"type":"Alianza-Publicación libro Elegancia Sin Esfuerzo","designer":"ST"},{"source":"KAROLINA_K","target":"IMM_ADVISORY_JO","weight":2,"type":"Institucional-Advisory Board IMM","designer":"ST"},{"source":"KAROLINA_K","target":"ST_MARCA","weight":2,"type":"Alianza-Embajadora marca+beca Colombia","designer":"ST"},{"source":"KAROLINA_K","target":"BECA_ST","weight":2,"type":"Alianza-Co-lanzadora beca Colombia","designer":"ST"},{"source":"UNINORTE","target":"CATEDRA_JSD","weight":2,"type":"Institucional-Sede Cátedra JM Santo Domingo","designer":"ST"},{"source":"ST_MARCA","target":"CATEDRA_JSD","weight":1,"type":"Institucional-Invitada cátedra oct.2022","designer":"ST"},{"source":"CONDÉ_NAST","target":"TCHERASSI_H","weight":1,"type":"Institucional-Seleccionó hotel como mejor","designer":"ST"},{"source":"ST_MARCA","target":"TCHERASSI_H","weight":2,"type":"Societario-Extensión marca hoteles Cartagena","designer":"ST"},{"source":"ST_MARCA","target":"MUSEO_MAMBA","weight":1,"type":"Institucional-Exposición Antología 2006","designer":"ST"},{"source":"ST_PERSON","target":"REINA_CARNAVAL","weight":1,"type":"Institucional-Reina Carnaval BQ 1986","designer":"ST"},{"source":"ST_PERSON","target":"IMM_ADVISORY_JO","weight":1,"type":"Institucional-Advisory Board Marangoni Miami","designer":"ST"},{"source":"ST_MARCA","target":"COLOMBIAMODA","weight":2,"type":"Institucional-Colombiamoda","designer":"ST"},
+{"source":"FM_PERSON","target":"FM_MARCA","weight":3,"type":"Fundadora-Directora","designer":"FM"},{"source":"FM_PERSON","target":"FJ_PERSON","weight":3,"type":"Familia-Cónyuge","designer":"FM"},{"source":"FJ_PERSON","target":"JASSIR_FAM","weight":3,"type":"Familia-Miembro","designer":"FM"},{"source":"JASSIR_FAM","target":"PASTEL_J","weight":3,"type":"Societario-Familia propietaria Pastelería","designer":"FM"},{"source":"JASSIR_FAM","target":"JASSIR_DIST","weight":3,"type":"Societario-Familia propietaria Distribuidores","designer":"FM"},{"source":"FM_PERSON","target":"DANIELLA_JM","weight":3,"type":"Familia-Madre","designer":"FM"},{"source":"DANIELLA_JM","target":"FM_MARCA","weight":2,"type":"Societario-Directora sucesión consumada","designer":"FM"},{"source":"FM_PERSON","target":"FRANCISCO_JM","weight":3,"type":"Familia-Madre","designer":"FM"},{"source":"FM_PERSON","target":"ANDREA_JM","weight":3,"type":"Familia-Madre","designer":"FM"},{"source":"FM_PERSON","target":"RUY_MIRANDA","weight":3,"type":"Familia-Hija","designer":"FM"},{"source":"RUY_MIRANDA","target":"RCIE_AMBAS","weight":2,"type":"Institucional-Carrera diplomática El Salvador","designer":"FM"},{"source":"FM_PERSON","target":"GLORIA_M","weight":3,"type":"Familia-Hija","designer":"FM"},{"source":"FM_MARCA","target":"FM_BTQ_BQ","weight":2,"type":"Societario-Sede principal","designer":"FM"},{"source":"FM_MARCA","target":"FM_BOGOTA","weight":2,"type":"Societario-Punto venta Bogotá 2001","designer":"FM"},{"source":"FM_MARCA","target":"FM_SAL_SV","weight":2,"type":"Societario-Punto venta San Salvador 2005","designer":"FM"},{"source":"FM_MARCA","target":"FM_PANAM","weight":2,"type":"Societario-Transnacional Panamá","designer":"FM"},{"source":"FM_MARCA","target":"COLOMBIAMODA","weight":2,"type":"Institucional-Colombiamoda desde 1994","designer":"FM"},{"source":"FM_MARCA","target":"NY_FW","weight":2,"type":"Institucional-Presentaciones NYFW","designer":"FM"},{"source":"FM_MARCA","target":"FASHION_TV_P","weight":1,"type":"Institucional-Premio Best Runway 2001","designer":"FM"},{"source":"FM_MARCA","target":"INSIDE_WED","weight":1,"type":"Comercial-Portada 2013","designer":"FM"},{"source":"FM_MARCA","target":"GROUP_868","weight":2,"type":"Comercial-Representante EEUU/Canadá desde 2010","designer":"FM"},{"source":"FM_PERSON","target":"FUSATE","weight":1,"type":"Institucional-Desfile benéfico El Salvador 2005","designer":"FM"},{"source":"FM_MARCA","target":"FEDCO","weight":2,"type":"Alianza-Fragancia Trust FEDCO","designer":"FM"},{"source":"FM_MARCA","target":"ALMAC_EXITO","weight":2,"type":"Alianza-Línea lencería Almacenes Éxito","designer":"FM"},{"source":"FM_MARCA","target":"PARIS_PRES_FM","weight":2,"type":"Institucional-Presentaciones París","designer":"FM"},{"source":"ADELE_GLAM","target":"FM_MARCA","weight":1,"type":"Cliente-élite puntual Glamour 2015","designer":"FM"},{"source":"ELISABETH_ROHM","target":"FM_MARCA","weight":1,"type":"Cliente-élite","designer":"FM"},{"source":"SHENAE_GRIMES","target":"FM_MARCA","weight":1,"type":"Cliente-élite","designer":"FM"},{"source":"FM_MARCA","target":"XANGO_BRAND","weight":2,"type":"Histórico-Marca anterior 1994-1997","designer":"FM"},{"source":"FM_MARCA","target":"CITY_PEOPLE","weight":2,"type":"Societario-Línea femenina desde 2000","designer":"FM"},{"source":"FM_MARCA","target":"CARTAGENA_BTQ","weight":2,"type":"Societario-Punto venta Cartagena nov.2010","designer":"FM"},{"source":"FM_MARCA","target":"FM_CARTAGENA_BTQ","weight":2,"type":"Societario-Boutique turística Cartagena","designer":"FM"},{"source":"FM_MARCA","target":"MIAMI_FW","weight":2,"type":"Institucional-Presentación+Premio Miami FW 2001","designer":"FM"},{"source":"FM_PERSON","target":"USF","weight":1,"type":"Institucional-Alumni University South Florida","designer":"FM"},{"source":"FM_PERSON","target":"LAKELAND_C","weight":1,"type":"Institucional-Alumni Lakeland College","designer":"FM"},{"source":"FM_MARCA","target":"ESCUELA_FM","weight":2,"type":"Institucional-Fundadora Escuela Diseño BQ","designer":"FM"},{"source":"ESCUELA_FM","target":"HOLDING_ESP","weight":1,"type":"Alianza-Co-operación educativa holding español","designer":"FM"},{"source":"FM_MARCA","target":"KONG_HK","weight":2,"type":"Comercial-Exportación Asia Hong Kong 2013","designer":"FM"}];
+
+// ─── SETUP ───────────────────────────────────────────────────────────────────
+const DC={'JO':'#2E8B57','ST':'#7B2D8B','FM':'#CC5500','JO/ST':'#FFD700','JO/ST/FM':'#F39C12','ST/JO':'#FFD700','JO/FM':'#FFD700','ST/FM':'#c055c0'};
+const TIPOLOGIA={'JO':'Híbrida','ST':'Concentrada-familiar','FM':'Dispersa-transnacional'};
+const COLOMBINA_IDS=new Set(['COLOMBINA','RIOPAILA','HILDA_CAPURRO','LUMUMBA_SAS','FIDEI_FARALLONES','FIDEI_VALLE','FIDEI_CALI','CARE_TRUST','FIDEI_BAMFA','CC_PERSON','JO_PERSON','JO_MARCA','HERNANDO_C1','JAIME_HC','JAIME_H_C','HERNANDO_CT','JUAN_M_CC','PATRICIA_CJ','JULIANA_GC','HILDA_MC','CARLOS_OC','HERNANDO_CR','MAURICIO_CA','SEBASTIAN_AC','BELISARIO_CC','MARCO_A_CJ','JACOBO_TC','MATEO_SC','MEDOMI_LL','JUAN_R_G','ALVARO_HC','MARCO_C_DEP','EL_PAIS_CALI','LLOREDA_FAM','SIP','ANDI_JD','UAV','COMFANDI','BELLEZA_EX','DEP_CALI','DILLIAN_T','ALEJANDRO_E','HAROLD_E','MANUELITA','ADRIANA_A','TALIANA_V','PINK_FIL','PAOLA_O']);
+
+const nodeMap=new Map(RAW_NODES.map(n=>[n.id,{...n}]));
+const adj=new Map();
+RAW_NODES.forEach(n=>adj.set(n.id,[]));
+RAW_EDGES.forEach(e=>{
+  if(adj.has(e.source)&&adj.has(e.target)){
+    adj.get(e.source).push({id:e.target,type:e.type,weight:e.weight,designer:e.designer});
+    adj.get(e.target).push({id:e.source,type:e.type,weight:e.weight,designer:e.designer});
+  }
+});
+
+// Build type list
+const allTypes=[...new Set(RAW_NODES.map(n=>n.type))].sort();
+const typeBar=document.getElementById('type-bar');
+// Make "Todos" chip clickable to reset
+document.querySelector('.type-chip[data-type="all"]').addEventListener('click',()=>{
+  document.querySelectorAll('.type-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelector('.type-chip[data-type="all"]').classList.add('active');
+  activeTypeFilter='all';
+  if(!compareMode)render(activeFilter);
+  else renderCompare();
+});
+allTypes.forEach(t=>{
+  const ch=document.createElement('div');
+  ch.className='type-chip';ch.dataset.type=t;
+  ch.innerHTML=`<div class="tc-dot" style="background:${DC['JO']}22;border:1px solid rgba(255,255,255,.15)"></div>${t.replace(/_/g,' ')}`;
+  ch.addEventListener('click',()=>{
+    document.querySelectorAll('.type-chip').forEach(c=>c.classList.remove('active'));
+    if(ch.dataset.type==='all'||ch.dataset.type===activeTypeFilter){
+      // Reset to all
+      activeTypeFilter='all';
+      document.querySelector('.type-chip[data-type="all"]').classList.add('active');
+    } else {
+      activeTypeFilter=ch.dataset.type;
+      ch.classList.add('active');
+    }
+    if(!compareMode)render(activeFilter);
+    else renderCompare();
+  });
+  typeBar.appendChild(ch);
+});
+
+// Populate path selectors
+const pFrom=document.getElementById('path-from'),pTo=document.getElementById('path-to');
+[...nodeMap.values()].sort((a,b)=>a.label.localeCompare(b.label)).forEach(n=>{
+  [pFrom,pTo].forEach(sel=>{const o=document.createElement('option');o.value=n.id;o.textContent=n.label.substring(0,50);sel.appendChild(o);});
+});
+
+let activeFilter='all',activeTypeFilter='all',compareMode=false,flowMode=false,simMain=null,selectedId=null;
+let currentExportMode='dark';
+function setExportMode(mode,btn){
+  currentExportMode=mode;
+  document.querySelectorAll('.exp-mode-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+}
+const svg=d3.select('#graph'),g=svg.append('g');
+const zoom=d3.zoom().scaleExtent([0.06,6]).on('zoom',e=>g.attr('transform',e.transform));
+svg.call(zoom).on('dblclick.zoom',null);
+function gw(){return document.getElementById('graph').clientWidth||window.innerWidth-268}
+function gh(){return document.getElementById('graph').clientHeight||window.innerHeight-90}
+
+// ─── DATA BUILDER ────────────────────────────────────────────────────────────
+function buildData(filter){
+  const shared=['JO/ST','JO/ST/FM','ST/JO','JO/FM','ST/FM'];
+  let nodes,edges;
+  if(filter==='all'){nodes=RAW_NODES.map(n=>({...n}));edges=RAW_EDGES.map(e=>({...e}));}
+  else if(filter==='shared'){nodes=RAW_NODES.filter(n=>shared.includes(n.designer)).map(n=>({...n}));const ids=new Set(nodes.map(n=>n.id));edges=RAW_EDGES.filter(e=>ids.has(e.source)&&ids.has(e.target)).map(e=>({...e}));}
+  else if(filter==='colombina'){nodes=RAW_NODES.filter(n=>COLOMBINA_IDS.has(n.id)).map(n=>({...n}));const ids=new Set(nodes.map(n=>n.id));edges=RAW_EDGES.filter(e=>ids.has(e.source)&&ids.has(e.target)).map(e=>({...e}));}
+  else{nodes=RAW_NODES.filter(n=>n.designer===filter||shared.includes(n.designer)).map(n=>({...n}));const ids=new Set(nodes.map(n=>n.id));edges=RAW_EDGES.filter(e=>ids.has(e.source)&&ids.has(e.target)).map(e=>({...e}));}
+  if(activeTypeFilter!=='all')nodes=nodes.filter(n=>n.type===activeTypeFilter);
+  const visIds=new Set(nodes.map(n=>n.id));
+  edges=edges.filter(e=>visIds.has(e.source)&&visIds.has(e.target));
+  return{nodes,edges};
+}
+
+// ─── METRICS ─────────────────────────────────────────────────────────────────
+function calcMetrics(filter){
+  const{nodes,edges}=buildData(filter);
+  const n=nodes.length,e=edges.length;
+  const density=n>1?(2*e/(n*(n-1))).toFixed(4):'–';
+  const degMap=new Map();nodes.forEach(nd=>degMap.set(nd.id,0));
+  edges.forEach(ed=>{degMap.set(ed.source,(degMap.get(ed.source)||0)+1);degMap.set(ed.target,(degMap.get(ed.target)||0)+1)});
+  let topDeg=null,topDegV=0;degMap.forEach((v,id)=>{if(v>topDegV){topDegV=v;topDeg=id}});
+  let topBet=null,topBetV=0;
+  nodes.forEach(nd=>{const s=(degMap.get(nd.id)||0)*(nd.size||10);if(s>topBetV){topBetV=s;topBet=nd.id}});
+  const tdN=nodeMap.get(topDeg),tbN=nodeMap.get(topBet);
+  const comms=filter==='all'?3:1;
+  document.getElementById('m-nodes').textContent=n;
+  document.getElementById('m-edges').textContent=e;
+  document.getElementById('m-density').textContent=density;
+  document.getElementById('m-density-sub').textContent=filter==='all'?'Red completa 3 redes':TIPOLOGIA[filter]||filter;
+  document.getElementById('m-communities').textContent=filter==='all'?'3':comms;
+  document.getElementById('m-top-degree').textContent=tdN?`${tdN.label.substring(0,38)} (${topDegV} conexiones)`:'–';
+  document.getElementById('m-top-bet').textContent=tbN?`${tbN.label.substring(0,38)}`:'–';
+  document.getElementById('nc').textContent=n;
+  document.getElementById('ec').textContent=e;
+  const fl=document.getElementById('metrics-filter-label');
+  fl.textContent=filter==='all'?'':filter==='shared'?'· Nodos puente':filter==='colombina'?'· Red Colombina':`· ${{'JO':'Johanna Ortiz','ST':'Silvia Tcherassi','FM':'Francesca Miranda'}[filter]||filter}`;
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function render(filter){
+  g.selectAll('*').remove();
+  if(simMain)simMain.stop();
+  const{nodes,edges}=buildData(filter);
+  const W=gw(),H=gh();
+  const dp={'JO':[W*.22,H*.42],'ST':[W*.55,H*.55],'FM':[W*.8,H*.35]};
+  nodes.forEach(nd=>{
+    const b=dp[nd.designer]||[W*.5,H*.5];
+    nd.x=b[0]+(Math.random()-.5)*160;nd.y=b[1]+(Math.random()-.5)*160;
+  });
+  const nbm=new Map(nodes.map(n=>[n.id,n]));
+  const ve=edges.filter(e=>nbm.has(e.source)&&nbm.has(e.target));
+
+  simMain=d3.forceSimulation(nodes)
+    .force('link',d3.forceLink(ve).id(d=>d.id).distance(d=>110+(3-d.weight)*50).strength(.28))
+    .force('charge',d3.forceManyBody().strength(-600).distanceMax(600))
+    .force('collision',d3.forceCollide().radius(d=>(d.size||10)*1.3+20))
+    .force('x',d3.forceX(d=>{const p=dp[d.designer];return p?p[0]:W*.5}).strength(.09))
+    .force('y',d3.forceY(d=>{const p=dp[d.designer];return p?p[1]:H*.5}).strength(.09));
+
+  // Flow mode: animated dashes
+  const link=g.append('g').selectAll('line').data(ve).join('line')
+    .attr('class',d=>`link w${d.weight}`)
+    .attr('stroke',d=>{const s=nbm.get(typeof d.source==='object'?d.source.id:d.source);return s?DC[s.designer]||'#888':'#888'})
+    .attr('stroke-width',d=>d.weight*.75+.3)
+    .attr('stroke-dasharray',flowMode?'4 3':null);
+
+  const node=g.append('g').selectAll('g').data(nodes).join('g').attr('class','node')
+    .call(d3.drag()
+      .on('start',(e,d)=>{if(!e.active)simMain.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y})
+      .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y})
+      .on('end',(e,d)=>{if(!e.active)simMain.alphaTarget(0);d.fx=null;d.fy=null}));
+
+  node.append('circle')
+    .attr('r',d=>(d.size||10)*.85)
+    .attr('fill',d=>DC[d.designer]||'#888')
+    .attr('fill-opacity',.8)
+    .attr('stroke',d=>DC[d.designer]||'#888')
+    .attr('stroke-opacity',.45).attr('stroke-width',1.1);
+
+  const isLightNow=document.body.classList.contains('light');
+  const nodeTxtFill=isLightNow?'rgba(18,14,8,0.92)':'#ffffff';
+  const nodeTxtStroke=isLightNow?'rgba(245,241,235,0.98)':'rgba(10,15,22,0.97)';
+  const nodeSubFill=isLightNow?'rgba(18,14,8,0.65)':'rgba(255,255,255,0.75)';
+
+  node.append('text')
+    .text(d=>{const w=d.label.split(' ');return w.slice(0,3).join(' ')+(w.length>3?'…':'')})
+    .attr('dy',d=>(d.size||10)*.85+11).attr('text-anchor','middle')
+    .attr('font-size',d=>(d.size||10)>22?9.5:8)
+    .attr('fill',nodeTxtFill)
+    .attr('stroke',nodeTxtStroke)
+    .attr('stroke-width',3)
+    .attr('paint-order','stroke')
+    .attr('stroke-linejoin','round');
+
+  // Node subtitle: type · region — explicit fill/stroke for both themes and export
+  node.append('text')
+    .attr('class','node-subtitle')
+    .text(d=>{
+      const t=(d.type||'').replace(/_/g,' ').substring(0,16);
+      const r=(d.region||'').substring(0,12);
+      return r?`${t} · ${r}`:t;
+    })
+    .attr('dy',d=>(d.size||10)*.85+21)
+    .attr('text-anchor','middle')
+    .attr('font-size',6.2)
+    .attr('fill',nodeSubFill)
+    .attr('stroke',nodeTxtStroke)
+    .attr('stroke-width',2.5)
+    .attr('paint-order','stroke')
+    .attr('stroke-linejoin','round')
+    .attr('pointer-events','none');
+
+  node.on('mouseenter',(e,d)=>showTt(e,d))
+    .on('mousemove',e=>moveTt(e))
+    .on('mouseleave',()=>document.getElementById('tt').classList.remove('vis'))
+    .on('click',(ev,d)=>{ev.stopPropagation();selectNode(d,node,link,nbm)})
+    .on('dblclick',(ev,d)=>{ev.stopPropagation();svg.transition().duration(500).call(zoom.translateTo,d.x,d.y)});
+
+  svg.on('click',()=>{
+    selectedId=null;
+    node.select('circle').attr('fill-opacity',.8).attr('stroke-opacity',.45).attr('stroke-width',1.1);
+    link.attr('stroke-opacity',d=>d.weight===3?.48:d.weight===2?.28:.11);
+    document.getElementById('node-panel').innerHTML='<div class="node-empty">Haz clic en cualquier nodo para ver su análisis estratégico completo: posición, tipo de capital, flujos simbólicos y conexiones verificadas.</div>';
+  });
+
+  simMain.on('tick',()=>{
+    link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+    node.attr('transform',d=>`translate(${d.x},${d.y})`);
+  });
+
+  calcMetrics(filter);
+}
+
+// ─── TOOLTIP ─────────────────────────────────────────────────────────────────
+function showTt(e,d){
+  const tt=document.getElementById('tt');
+  const col=DC[d.designer]||'#888';
+  const conns=adj.get(d.id)||[];
+  tt.innerHTML=`
+    <div class="tt-top"><div class="tt-dot" style="background:${col}"></div><div class="tt-label">${d.label}</div></div>
+    <div class="tt-type">${(d.role||d.type).replace(/_/g,' ')}</div>
+    <div class="tt-row"><strong>Red</strong>${d.designer}</div>
+    <div class="tt-row"><strong>Región</strong>${d.region}</div>
+    <div class="tt-row"><strong>Conexiones</strong>${conns.length}</div>
+    <div class="tt-row"><strong>Cap. simbólico</strong>${d.capsym||'–'}</div>
+    <div class="tt-analysis">${d.analysis||''}</div>`;
+  tt.classList.add('vis');moveTt(e);
+}
+function moveTt(e){
+  const tt=document.getElementById('tt');
+  const x=e.clientX+16,y=e.clientY-12;
+  tt.style.left=(x+280>window.innerWidth?x-296:x)+'px';
+  tt.style.top=(y+240>window.innerHeight?y-240:y)+'px';
+}
+
+// ─── SELECT NODE ─────────────────────────────────────────────────────────────
+function selectNode(d,nodeSel,linkSel,nbm){
+  selectedId=d.id;
+  const nbrs=new Set((adj.get(d.id)||[]).map(c=>c.id));nbrs.add(d.id);
+  const col=DC[d.designer]||'#888';
+  nodeSel.select('circle')
+    .attr('fill-opacity',n=>nbrs.has(n.id)?.92:.12)
+    .attr('stroke-opacity',n=>nbrs.has(n.id)?.75:.08)
+    .attr('stroke-width',n=>n.id===d.id?2.8:1.1);
+  linkSel
+    .attr('stroke-opacity',e=>{const s=typeof e.source==='object'?e.source.id:e.source,t=typeof e.target==='object'?e.target.id:e.target;return(s===d.id||t===d.id)?.78:.03})
+    .attr('stroke-width',e=>{const s=typeof e.source==='object'?e.source.id:e.source,t=typeof e.target==='object'?e.target.id:e.target;return(s===d.id||t===d.id)?e.weight*1.8:.25});
+
+  const conns=adj.get(d.id)||[];
+  const connsHtml=conns.slice(0,8).map(c=>{
+    const cn=nodeMap.get(c.id);const cc=cn?DC[cn.designer]||'#888':'#888';
+    return`<div class="conn-item"><div class="conn-dot" style="background:${cc}"></div><div><div>${cn?cn.label.substring(0,40):c.id}${cn&&cn.label.length>40?'…':''}</div><div class="conn-type">${c.type.substring(0,45)}</div></div></div>`;
+  }).join('');
+
+  document.getElementById('node-panel').innerHTML=`
+    <div class="node-name" style="color:${col}">${d.label}</div>
+    <div class="node-role-chip" style="background:${col}1a;color:${col};border:1px solid ${col}33">${(d.role||d.type).replace(/_/g,' ')}</div>
+    <div class="node-f"><strong>Diseñadora</strong><span>${d.designer}</span></div>
+    <div class="node-f"><strong>Tipo</strong><span>${d.type.replace(/_/g,' ')}</span></div>
+    <div class="node-f"><strong>Región</strong><span>${d.region}</span></div>
+    <div class="node-f"><strong>Grado est.</strong><span>${d.degree_est||'–'}</span></div>
+    <div class="node-f"><strong>Betweenness</strong><span>${d.bet_flag||'–'}</span></div>
+    <div class="node-f"><strong>Cap. simbólico</strong><span>${d.capsym||'–'}</span></div>
+    <div class="node-f"><strong>Fuente</strong><span style="font-size:8.5px">${(d.source||'').substring(0,65)}</span></div>
+    <div class="node-analysis-box"><div class="na-title">Análisis estratégico</div>${d.analysis||'–'}</div>
+    <div class="conn-list">
+      <div class="node-f" style="margin-bottom:4px"><strong>${conns.length} conexiones</strong></div>
+      ${connsHtml}
+      ${conns.length>8?`<div class="conn-item" style="color:var(--muted2)">… y ${conns.length-8} más</div>`:''}
+    </div>`;
+}
+
+// ─── FILTERS ─────────────────────────────────────────────────────────────────
+document.querySelectorAll('.fbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter=btn.dataset.filter;
+    if(!compareMode)render(activeFilter);
+    else renderCompare();
+  });
+});
+
+// ─── SEARCH ──────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('keydown',e=>{if(e.key==='Escape'){e.target.value='';g.selectAll('.node').each(function(){d3.select(this).select('circle').attr('fill-opacity',.8);d3.select(this).select('text').attr('fill-opacity',1)});}});
+document.getElementById('search').addEventListener('input',e=>{
+  const q=e.target.value.toLowerCase().trim();
+  g.selectAll('.node').each(function(d){
+    const match=!q||d.label.toLowerCase().includes(q)||d.type.toLowerCase().includes(q)||d.region.toLowerCase().includes(q)||d.role.toLowerCase().includes(q);
+    d3.select(this).select('circle').attr('fill-opacity',match?.85:.08);
+    d3.select(this).select('text').attr('fill-opacity',match?1:.08);
+  });
+});
+
+// ─── COMPARE ─────────────────────────────────────────────────────────────────
+function toggleCompare(){
+  compareMode=!compareMode;
+  const btn=document.getElementById('compare-btn');
+  const cw=document.getElementById('compare-wrap');
+  const mg=document.getElementById('graph');
+  if(compareMode){btn.classList.add('active');btn.textContent='✕ Cerrar';cw.classList.add('vis');mg.style.display='none';renderCompare();}
+  else{btn.classList.remove('active');btn.textContent='⊞ Comparar';cw.classList.remove('vis');mg.style.display='';render(activeFilter);}
+}
+function renderCompare(){
+  const cw=document.getElementById('compare-wrap');cw.innerHTML='';
+  const pairs=[['JO','ST'],['ST','FM'],['JO','FM']];
+  let pair=pairs[0];if(activeFilter==='ST')pair=pairs[1];else if(activeFilter==='FM')pair=pairs[2];
+  pair.forEach(f=>{
+    const half=document.createElement('div');half.className='compare-half';
+    const lbl=document.createElement('div');lbl.className='compare-lbl';
+    lbl.textContent={'JO':'Johanna Ortiz','ST':'Silvia Tcherassi','FM':'Francesca Miranda'}[f];
+    lbl.style.color=DC[f];half.appendChild(lbl);
+    const sv=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    sv.style.width='100%';sv.style.height='100%';half.appendChild(sv);cw.appendChild(half);
+    renderMini(sv,f);
+  });
+}
+function renderMini(svgEl,filter){
+  const s=d3.select(svgEl);const gg=s.append('g');
+  const zm=d3.zoom().scaleExtent([0.04,5]).on('zoom',e=>gg.attr('transform',e.transform));s.call(zm);
+  const{nodes,edges}=buildData(filter);
+  const W=svgEl.parentElement.clientWidth||400,H=svgEl.parentElement.clientHeight||400;
+  nodes.forEach(nd=>{nd.x=W*.5+(Math.random()-.5)*220;nd.y=H*.5+(Math.random()-.5)*220});
+  const nbm=new Map(nodes.map(n=>[n.id,n]));
+  const ve=edges.filter(e=>nbm.has(e.source)&&nbm.has(e.target));
+  const sim=d3.forceSimulation(nodes)
+    .force('link',d3.forceLink(ve).id(d=>d.id).distance(60).strength(.38))
+    .force('charge',d3.forceManyBody().strength(-300).distanceMax(400))
+    .force('collision',d3.forceCollide().radius(d=>(d.size||10)*.8+12))
+    .force('center',d3.forceCenter(W*.5,H*.5));
+  const link=gg.append('g').selectAll('line').data(ve).join('line')
+    .attr('stroke',DC[filter]||'#888').attr('stroke-opacity',.22).attr('stroke-width',.8);
+  const node=gg.append('g').selectAll('g').data(nodes).join('g');
+  node.append('circle').attr('r',d=>(d.size||10)*.68).attr('fill-opacity',.78)
+    .each(function(d){d3.select(this).attr('fill',DC[d.designer]||DC[filter])});
+  node.append('text').text(d=>d.label.split(' ').slice(0,2).join(' ')).attr('dy',d=>(d.size||10)*.68+9).attr('text-anchor','middle').attr('font-size',7).attr('fill','rgba(232,226,216,.72)').attr('stroke','rgba(10,15,22,.9)').attr('stroke-width',2.5).attr('paint-order','stroke').attr('pointer-events','none');
+  node.append('text').attr('class','node-subtitle').text(d=>(d.region||'').substring(0,14)).attr('dy',d=>(d.size||10)*.68+18).attr('text-anchor','middle').attr('font-size',6).attr('fill','rgba(232,226,216,.38)').attr('stroke','rgba(10,15,22,.85)').attr('stroke-width',1.8).attr('paint-order','stroke').attr('pointer-events','none');
+  sim.on('tick',()=>{link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);node.attr('transform',d=>`translate(${d.x},${d.y})`)});
+}
+
+// ─── FLOW MODE ───────────────────────────────────────────────────────────────
+function toggleFlow(){
+  flowMode=!flowMode;
+  const btn=document.getElementById('flow-btn');
+  btn.classList.toggle('active',flowMode);
+  btn.textContent=flowMode?'✕ Flujo cap.':'⟳ Flujo cap.';
+  if(!compareMode)render(activeFilter);
+}
+
+// ─── PATH FINDER ─────────────────────────────────────────────────────────────
+function findPath(){
+  const from=document.getElementById('path-from').value,to=document.getElementById('path-to').value;
+  const res=document.getElementById('path-result');
+  if(!from||!to){res.textContent='Selecciona origen y destino.';return;}
+  if(from===to){res.textContent='Origen y destino son el mismo nodo.';return;}
+  // BFS
+  const visited=new Map();visited.set(from,null);
+  const queue=[from];let found=false;
+  while(queue.length&&!found){
+    const curr=queue.shift();
+    for(const nb of(adj.get(curr)||[])){
+      if(!visited.has(nb.id)){visited.set(nb.id,curr);if(nb.id===to){found=true;break;}queue.push(nb.id);}
+    }
+  }
+  if(!found){res.innerHTML='No hay camino verificado entre estos dos nodos en la red actual.';return;}
+  const path=[];let cur=to;while(cur){path.unshift(cur);cur=visited.get(cur);}
+  const html=path.map((id,i)=>{
+    const n=nodeMap.get(id);const col=n?DC[n.designer]||'#888':'#888';
+    return`${i>0?'<span style="color:var(--muted2);margin:0 3px">→</span>':''}<span class="path-step" style="color:${col}">${n?n.label.substring(0,30):id}</span>`;
+  }).join('');
+  res.innerHTML=`<div style="margin-bottom:5px;font-size:8.5px;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase">${path.length-1} grado${path.length-1!==1?'s':''} de separación</div>${html}`;
+  // Highlight path in graph
+  const pathSet=new Set(path);
+  g.selectAll('.node').select('circle').attr('fill-opacity',d=>pathSet.has(d.id)?.95:.1).attr('stroke-width',d=>path[0]===d.id||path[path.length-1]===d.id?3:pathSet.has(d.id)?2:1.1);
+  g.selectAll('.link').attr('stroke-opacity',d=>{
+    const s=typeof d.source==='object'?d.source.id:d.source,t=typeof d.target==='object'?d.target.id:d.target;
+    for(let i=0;i<path.length-1;i++)if((path[i]===s&&path[i+1]===t)||(path[i]===t&&path[i+1]===s))return.9;
+    return.03;
+  }).attr('stroke',d=>{
+    const s=typeof d.source==='object'?d.source.id:d.source,t=typeof d.target==='object'?d.target.id:d.target;
+    for(let i=0;i<path.length-1;i++)if((path[i]===s&&path[i+1]===t)||(path[i]===t&&path[i+1]===s))return'#FFD700';
+    const sn=nodeMap.get(s);return sn?DC[sn.designer]||'#888':'#888';
+  }).attr('stroke-width',d=>{
+    const s=typeof d.source==='object'?d.source.id:d.source,t=typeof d.target==='object'?d.target.id:d.target;
+    for(let i=0;i<path.length-1;i++)if((path[i]===s&&path[i+1]===t)||(path[i]===t&&path[i+1]===s))return 2.8;
+    return .25;
+  });
+}
+
+// ─── EXPORT ──────────────────────────────────────────────────────────────────
+function notify(msg,type='success'){
+  const n=document.getElementById('notify');n.textContent=msg;n.className=`notify show ${type}`;
+  setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+// Export helpers below
+
+function exportGraph(filter,colorMode){
+  const cm=colorMode||'dark';
+  const labels={'all':'Atlas_3Redes','JO':'Red_JohannaOrtiz','ST':'Red_SilviaTcherassi','FM':'Red_FrancescaMiranda','shared':'Nodos_Puente','colombina':'Red_Colombina_Completa'};
+  notify('Generando imagen, espera 3 segundos…','');
+  const prev=activeFilter;
+  const wasLight=document.body.classList.contains('light');
+
+  // Apply theme for export
+  if(cm==='light'){document.body.classList.add('light');}
+  else{document.body.classList.remove('light');}
+
+  if(!compareMode){
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+    const targetBtn=document.querySelector(`.fbtn[data-filter="${filter}"]`);
+    if(targetBtn)targetBtn.classList.add('active');
+    render(filter);
+  }
+
+  // Wait for simulation to mostly settle
+  setTimeout(()=>{
+    try{ _doExport(filter,cm,labels,prev,wasLight); }
+    catch(err){ notify('Error al exportar: '+err.message,'error'); restoreAfterExport(prev,wasLight); }
+  }, 3000);
+}
+
+function _doExport(filter,cm,labels,prev,wasLight){
+  const svgEl=document.getElementById('graph');
+  if(!svgEl||svgEl.style.display==='none'){
+    notify('Activa la vista normal para exportar.','error');
+    restoreAfterExport(prev,wasLight);return;
+  }
+
+  // ── 1. Measure the ACTUAL bounding box of rendered nodes ──────────────────
+  const gEl=svgEl.querySelector('g'); // the D3 zoom group
+  let bbox;
+  try{ bbox=gEl.getBBox(); }catch(e){ bbox=null; }
+
+  const svgW=svgEl.clientWidth||1400;
+  const svgH=svgEl.clientHeight||900;
+  const PAD=60; // padding around content
+
+  // Export canvas size: always full SVG viewport (so it matches what you see)
+  const EXPORT_W=svgW;
+  const EXPORT_H=svgH;
+
+  // ── 2. Get the current zoom transform ────────────────────────────────────
+  const gTransform=gEl?gEl.getAttribute('transform')||'':'';
+
+  // ── 3. Colors ─────────────────────────────────────────────────────────────
+  const isDark=(cm==='dark'||cm==='bw');
+  const bgColor=cm==='light'?'#f5f1eb':'#0a0f16';
+  const textFill=cm==='light'?'rgba(24,20,14,0.9)':'rgba(232,226,216,0.9)';
+  const textStroke=cm==='light'?'rgba(245,241,235,0.98)':'rgba(10,15,22,0.98)';
+  const subtitleFill=cm==='light'?'rgba(24,20,14,0.6)':'rgba(232,226,216,0.55)';
+  const wmColor=cm==='light'?'rgba(100,75,20,0.7)':'rgba(201,168,76,0.7)';
+  const bwMap={'#2E8B57':'#2a2a2a','#7B2D8B':'#555555','#CC5500':'#888888','#FFD700':'#3a3a3a','#F39C12':'#4a4a4a','#c055c0':'#6a6a6a'};
+
+  // ── 4. Build export SVG string from scratch using node positions ──────────
+  // Get all current node/link data from the live simulation
+  const nodeEls=[...svgEl.querySelectorAll('.node')];
+  const linkEls=[...svgEl.querySelectorAll('.link')];
+
+  // Parse the zoom group transform to get tx, ty, k
+  let tx=0,ty=0,k=1;
+  const tm=gTransform.match(/translate\(([^,)]+),([^)]+)\)/);
+  const sm=gTransform.match(/scale\(([^)]+)\)/);
+  if(tm){tx=parseFloat(tm[1]);ty=parseFloat(tm[2]);}
+  if(sm){k=parseFloat(sm[1]);}
+
+  // Calculate bounding box of all nodes in screen space
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  nodeEls.forEach(nel=>{
+    const nt=nel.getAttribute('transform')||'';
+    const nm=nt.match(/translate\(([^,)]+),([^)]+)\)/);
+    if(nm){
+      const nx=parseFloat(nm[1])*k+tx;
+      const ny=parseFloat(nm[2])*k+ty;
+      if(nx<minX)minX=nx;if(ny<minY)minY=ny;
+      if(nx>maxX)maxX=nx;if(ny>maxY)maxY=ny;
+    }
+  });
+
+  // If we got valid bounds, compute a viewBox that fits all nodes with padding
+  let viewBox;
+  if(isFinite(minX)&&isFinite(minY)&&nodeEls.length>0){
+    const cx=(minX+maxX)/2, cy=(minY+maxY)/2;
+    const contentW=Math.max(maxX-minX+PAD*4, svgW*0.5);
+    const contentH=Math.max(maxY-minY+PAD*4, svgH*0.5);
+    // Scale to fit EXPORT dimensions
+    const fitScale=Math.min(EXPORT_W/contentW, EXPORT_H/contentH)*0.88;
+    const vbW=EXPORT_W/fitScale;
+    const vbH=EXPORT_H/fitScale;
+    const vbX=cx-vbW/2;
+    const vbY=cy-vbH/2;
+    viewBox=`${vbX} ${vbY} ${vbW} ${vbH}`;
+  } else {
+    // fallback: use current zoom transform
+    viewBox=null;
+  }
+
+  // ── 5. Clone and prepare SVG ─────────────────────────────────────────────
+  const clone=svgEl.cloneNode(true);
+  clone.setAttribute('width',EXPORT_W);
+  clone.setAttribute('height',EXPORT_H);
+  clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  clone.setAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
+  if(viewBox) clone.setAttribute('viewBox',viewBox);
+
+  // Remove old injected styles
+  [...clone.querySelectorAll('style.injected,rect.bg-rect')].forEach(el=>el.remove());
+
+  // Inline computed fill/stroke/opacity from live SVG onto clone attributes
+  // (so circles keep their D3-set colors)
+  const origEls=[...svgEl.querySelectorAll('circle,line')];
+  const cloneCircles=[...clone.querySelectorAll('circle,line')];
+  origEls.forEach((orig,i)=>{
+    const cl=cloneCircles[i];if(!cl)return;
+    try{
+      const cs=window.getComputedStyle(orig);
+      ['fill','fill-opacity','stroke','stroke-opacity','stroke-width'].forEach(p=>{
+        const v=cs.getPropertyValue(p);
+        if(v&&v!=='')cl.setAttribute(p,v);
+      });
+    }catch(e){}
+  });
+
+  // DIRECTLY set fill/stroke on every text element — attributes beat any CSS
+  [...clone.querySelectorAll('text')].forEach(el=>{
+    const isSub=el.classList.contains('node-subtitle');
+    el.setAttribute('fill', isSub ? subtitleFill : textFill);
+    el.setAttribute('stroke', textStroke);
+    el.setAttribute('stroke-width', isSub ? '2.5' : '3');
+    el.setAttribute('paint-order','stroke');
+    el.setAttribute('stroke-linejoin','round');
+    el.setAttribute('font-family','Syne,Helvetica,Arial,sans-serif');
+  });
+
+  // Skip injecting a <style> for text — we've set attributes directly above
+  // Only inject a minimal style for geometry
+  const styleEl=document.createElementNS('http://www.w3.org/2000/svg','style');
+  styleEl.setAttribute('class','injected');
+  styleEl.textContent='circle{vector-effect:non-scaling-stroke}';
+  clone.insertBefore(styleEl,clone.firstChild);
+
+  // B&W recolor
+  if(cm==='bw'){
+    [...clone.querySelectorAll('circle')].forEach(el=>{
+      const f=el.getAttribute('fill')||'';
+      // match hex colors from bwMap
+      let mapped='#555';
+      Object.entries(bwMap).forEach(([hex,bw])=>{if(f.toLowerCase()===hex.toLowerCase())mapped=bw;});
+      el.setAttribute('fill',mapped);el.setAttribute('stroke',mapped);el.setAttribute('fill-opacity','0.85');
+    });
+    [...clone.querySelectorAll('line')].forEach(el=>{
+      el.setAttribute('stroke',isDark?'rgba(140,140,140,0.5)':'rgba(60,60,60,0.4)');
+      el.setAttribute('stroke-opacity','0.5');
+    });
+  }
+
+  // Background (insert FIRST so it's behind everything)
+  const bg=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  bg.setAttribute('class','bg-rect');
+  bg.setAttribute('x', viewBox ? viewBox.split(' ')[0] : '0');
+  bg.setAttribute('y', viewBox ? viewBox.split(' ')[1] : '0');
+  bg.setAttribute('width', viewBox ? viewBox.split(' ')[2] : EXPORT_W);
+  bg.setAttribute('height', viewBox ? viewBox.split(' ')[3] : EXPORT_H);
+  bg.setAttribute('fill',bgColor);
+  clone.insertBefore(bg,clone.firstChild);
+
+  // Title (in viewBox coords so it renders at top-left of content)
+  const filterLabel={'all':'Red Completa · 3 Diseñadoras','JO':'Red Johanna Ortiz','ST':'Red Silvia Tcherassi','FM':'Red Francesca Miranda','shared':'Nodos Puente · JO·ST·FM','colombina':'Red Colombina · Johanna Ortiz'};
+  const vbParts=viewBox?viewBox.split(' ').map(Number):[0,0,EXPORT_W,EXPORT_H];
+  const tvbX=vbParts[0], tvbY=vbParts[1], tvbW=vbParts[2], tvbH=vbParts[3];
+  const titleSize=tvbW/80; // scale title to viewBox
+
+  const titleBg=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  titleBg.setAttribute('x',tvbX);titleBg.setAttribute('y',tvbY);
+  titleBg.setAttribute('width',tvbW);titleBg.setAttribute('height',titleSize*2.5);
+  titleBg.setAttribute('fill',isDark?'rgba(0,0,0,0.65)':'rgba(255,255,255,0.75)');
+  clone.appendChild(titleBg);
+
+  const titleTxt=document.createElementNS('http://www.w3.org/2000/svg','text');
+  titleTxt.setAttribute('x',tvbX+titleSize*0.8);
+  titleTxt.setAttribute('y',tvbY+titleSize*1.6);
+  titleTxt.setAttribute('font-size',titleSize);
+  titleTxt.setAttribute('font-family','Syne,Helvetica,Arial,sans-serif');
+  titleTxt.setAttribute('font-weight','600');
+  titleTxt.setAttribute('fill',isDark?'rgba(232,226,216,0.95)':'rgba(24,20,14,0.95)');
+  titleTxt.textContent=`Atlas Relacional del Poder · ${filterLabel[filter]||filter}`;
+  clone.appendChild(titleTxt);
+
+  // Watermark bottom-left
+  const wmSize=titleSize*0.65;
+  const wmTxt=document.createElementNS('http://www.w3.org/2000/svg','text');
+  wmTxt.setAttribute('x',tvbX+titleSize*0.8);
+  wmTxt.setAttribute('y',tvbY+tvbH-wmSize*0.6);
+  wmTxt.setAttribute('font-size',wmSize);
+  wmTxt.setAttribute('font-family','Syne,Helvetica,Arial,sans-serif');
+  wmTxt.setAttribute('fill',wmColor);
+  wmTxt.textContent=`Sharon Obando Delgado · The Fashion Politics · ${new Date().toLocaleDateString('es-CO')}`;
+  clone.appendChild(wmTxt);
+
+  // ── 6. Serialize and render to canvas ─────────────────────────────────────
+  const serializer=new XMLSerializer();
+  let svgStr=serializer.serializeToString(clone);
+  svgStr=svgStr.replace(/NS\d+:/g,'').replace(/:NS\d+/g,'');
+
+  const fname=`SharonObando_TheFashionPolitics_${labels[filter]||filter}_${cm}_${new Date().toISOString().slice(0,10)}`;
+  const scale=2;
+  const canvas=document.createElement('canvas');
+  canvas.width=EXPORT_W*scale;canvas.height=EXPORT_H*scale;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(scale,scale);
+  ctx.fillStyle=bgColor;ctx.fillRect(0,0,EXPORT_W,EXPORT_H);
+
+  const blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const img=new Image();
+  img.crossOrigin='anonymous';
+
+  img.onload=()=>{
+    ctx.drawImage(img,0,0,EXPORT_W,EXPORT_H);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(b=>{
+      if(b){
+        const a=document.createElement('a');
+        a.download=fname+'.png';
+        a.href=URL.createObjectURL(b);
+        document.body.appendChild(a);a.click();
+        setTimeout(()=>{try{URL.revokeObjectURL(a.href);document.body.removeChild(a);}catch(e){}},600);
+        notify(`✓ PNG ${EXPORT_W*scale}×${EXPORT_H*scale}px descargado`);
+      }else{downloadSVG(svgStr,fname);}
+    },'image/png',1.0);
+    restoreAfterExport(prev,wasLight);
+  };
+
+  img.onerror=()=>{
+    URL.revokeObjectURL(url);
+    // Fallback via FileReader data URL (works on iOS Safari)
+    const fr=new FileReader();
+    fr.onload=()=>{
+      const img2=new Image();
+      img2.onload=()=>{
+        ctx.fillStyle=bgColor;ctx.fillRect(0,0,EXPORT_W,EXPORT_H);
+        ctx.drawImage(img2,0,0,EXPORT_W,EXPORT_H);
+        canvas.toBlob(b=>{
+          if(b){
+            const a=document.createElement('a');
+            a.download=fname+'.png';a.href=URL.createObjectURL(b);
+            document.body.appendChild(a);a.click();
+            setTimeout(()=>{try{URL.revokeObjectURL(a.href);document.body.removeChild(a);}catch(e){}},600);
+            notify('✓ PNG descargado');
+          }else{downloadSVG(svgStr,fname);}
+        },'image/png',1.0);
+      };
+      img2.onerror=()=>downloadSVG(svgStr,fname);
+      img2.src=fr.result;
+    };
+    fr.readAsDataURL(blob);
+    restoreAfterExport(prev,wasLight);
+  };
+
+  img.src=url;
+}
+
+function downloadSVG(svgStr,fname){
+  const blob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.download=fname+'.svg';a.href=url;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{try{URL.revokeObjectURL(url);document.body.removeChild(a);}catch(e){}},500);
+  notify('✓ Descargado como SVG (abre en navegador o Inkscape)');
+}
+
+function restoreAfterExport(prev,wasLight){
+  if(wasLight)document.body.classList.add('light');
+  else document.body.classList.remove('light');
+  if(prev!==activeFilter&&!compareMode){
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+    const btn=document.querySelector(`.fbtn[data-filter="${prev}"]`);
+    if(btn)btn.classList.add('active');
+    render(prev);
+  }
+}
+
+function exportJSON(){
+  const data={meta:{title:'Atlas Relacional del Poder: Lujo Femenino, Élites e Influencia',author:'Sharon Obando Delgado',platform:'The Fashion Politics',date:new Date().toISOString().slice(0,10),total_nodes:RAW_NODES.length,total_edges:RAW_EDGES.length},nodes:RAW_NODES,edges:RAW_EDGES};
+  const a=document.createElement('a');
+  a.download=`SharonObando_TheFashionPolitics_Atlas_${new Date().toISOString().slice(0,10)}.json`;
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.click();notify('✓ JSON descargado');
+}
+
+function exportCSV(){
+  let csv='Id,Label,Type,Designer,Region,Role,Degree_Est,Betweenness,CapSym,Source\n';
+  RAW_NODES.forEach(n=>{
+    const esc=v=>`"${String(v||'').replace(/"/g,'""')}"`;
+    csv+=`${esc(n.id)},${esc(n.label)},${esc(n.type)},${esc(n.designer)},${esc(n.region)},${esc(n.role)},${esc(n.degree_est)},${esc(n.bet_flag)},${esc(n.capsym)},${esc(n.source)}\n`;
+  });
+  csv+='\nSource,Target,Weight,Type,Designer\n';
+  RAW_EDGES.forEach(e=>{
+    const esc=v=>`"${String(v||'').replace(/"/g,'""')}"`;
+    csv+=`${esc(e.source)},${esc(e.target)},${e.weight},${esc(e.type)},${esc(e.designer)}\n`;
+  });
+  const a=document.createElement('a');
+  a.download=`SharonObando_TheFashionPolitics_Atlas_${new Date().toISOString().slice(0,10)}.csv`;
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.click();notify('✓ CSV descargado');
+}
+
+function copyEmail(el){
+  const email='sharonobandodelgado@gmail.com';
+  navigator.clipboard.writeText(email).then(()=>{
+    const copied=document.getElementById('email-copied');
+    const txt=document.getElementById('email-txt');
+    if(copied){copied.style.display='inline';setTimeout(()=>{copied.style.display='none';},2000);}
+    notify('✓ Correo copiado al portapapeles');
+  }).catch(()=>{
+    // Fallback for browsers without clipboard API
+    const ta=document.createElement('textarea');
+    ta.value=email;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');notify('✓ Correo copiado');}catch(e){notify('Copia manual: '+email,'');}
+    document.body.removeChild(ta);
+  });
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+render('all');
+setTimeout(()=>{
+  const W=gw(),H=gh();
+  svg.call(zoom.transform,d3.zoomIdentity.translate(W*.03,H*.03).scale(.86));
+},1000);
+
+// ─── THEME TOGGLE ────────────────────────────────────────────────────────────
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  const btn=document.getElementById('theme-btn');
+  const meta=document.getElementById('theme-meta');
+  btn.textContent=isLight?'🌙 Dark':'☀ Claro';
+  btn.style.background=isLight?'rgba(0,0,0,0.06)':'rgba(255,255,255,0.04)';
+  if(meta)meta.setAttribute('content',isLight?'#f5f1eb':'#0a0f16');
+  // Re-render so node text stroke updates immediately
+  if(!compareMode)render(activeFilter);
+  else renderCompare();
+}
+
+// ─── ZOOM CONTROLS ───────────────────────────────────────────────────────────
+function zoomIn(){svg.transition().duration(300).call(zoom.scaleBy,1.4)}
+function zoomOut(){svg.transition().duration(300).call(zoom.scaleBy,0.7)}
+function zoomReset(){
+  const W=gw(),H=gh();
+  svg.transition().duration(500).call(zoom.transform,d3.zoomIdentity.translate(W*.03,H*.03).scale(.86));
+}
+
+// ─── FULLSCREEN ──────────────────────────────────────────────────────────────
+function toggleFullscreen(){
+  const el=document.getElementById('graph-area');
+  const btn=document.getElementById('fs-btn');
+  if(!document.fullscreenElement){
+    (el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen).call(el);
+    if(btn)btn.textContent='✕';
+  } else {
+    (document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen).call(document);
+    if(btn)btn.textContent='⛶';
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  const btn=document.getElementById('fs-btn');
+  if(btn)btn.textContent=document.fullscreenElement?'✕':'⛶';
+});
+
+// ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
+function toggleMobSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sb-overlay');
+  const isOpen=sb.classList.toggle('open');
+  if(ov)ov.classList.toggle('vis',isOpen);
+  document.body.style.overflow=isOpen&&window.innerWidth<=800?'hidden':'';
+}
+
+</script>
+</body>
+</html>
