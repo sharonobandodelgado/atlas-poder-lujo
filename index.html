@@ -1,4 +1,13 @@
-
+<!--
+INSTRUCCIONES PARA SUBIR A GITHUB PAGES:
+1. Ve a github.com → New repository → nombre: atlas-poder-lujo → Public → Create
+2. Sube este archivo renombrado como "index.html"
+3. Settings → Pages → Branch: main → /root → Save
+4. Tu URL permanente será: https://TU_USUARIO.github.io/atlas-poder-lujo
+ALTERNATIVA RÁPIDA SIN CUENTA:
+- Abre https://netlify.com/drop → arrastra este archivo → URL instantánea en segundos
+- Abre https://tiiny.host → sube el archivo → URL gratuita por 14 días
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -17,80 +26,8 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Fashion Politics">
 <link rel="canonical" href="https://sharonobando.com/atlas-relacional-poder-lujo-colombiano">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"ScholarlyArticle","name":"Atlas Relacional del Poder: Lujo Femenino, Élites e Influencia","author":{"@type":"Person","name":"Sharon Obando Delgado","url":"https://www.linkedin.com/in/sharon-obando-delgado-estratega-en-comunicacion-moda-imagen-poder","email":"sharonobandodelgado@gmail.com"},"publisher":{"@type":"Organization","name":"The Fashion Politics"},"description":"Análisis de redes sociales sobre la articulación entre marcas de lujo femenino colombiano y élites regionales","keywords":"moda lujo Colombia, redes poder, élites, Johanna Ortiz, Silvia Tcherassi, Francesca Miranda, SNA"}
-
-// ─── ZOOM CONTROLS ───────────────────────────────────────────────────────────
-function zoomIn(){svg.transition().duration(300).call(zoom.scaleBy,1.4)}
-function zoomOut(){svg.transition().duration(300).call(zoom.scaleBy,0.7)}
-function zoomReset(){
-  const W=gw(),H=gh();
-  svg.transition().duration(500).call(zoom.transform,d3.zoomIdentity.translate(W*.03,H*.03).scale(.86));
-}
-
-// ─── FULLSCREEN ──────────────────────────────────────────────────────────────
-function toggleFullscreen(){
-  const el=document.getElementById('graph-area');
-  const btn=document.getElementById('fs-btn');
-  if(!document.fullscreenElement){
-    (el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen).call(el);
-    if(btn)btn.textContent='✕';
-  } else {
-    (document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen).call(document);
-    if(btn)btn.textContent='⛶';
-  }
-}
-document.addEventListener('fullscreenchange',()=>{
-  const btn=document.getElementById('fs-btn');
-  if(btn)btn.textContent=document.fullscreenElement?'✕':'⛶';
-});
-
-// ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
-function toggleMobSidebar(){
-  const sb=document.querySelector('.sidebar');
-  const ov=document.getElementById('sb-overlay');
-  const isOpen=sb.classList.toggle('open');
-  if(ov)ov.classList.toggle('vis',isOpen);
-  document.body.style.overflow=isOpen&&window.innerWidth<=800?'hidden':'';
-}
-
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js">
-
-// ─── ZOOM CONTROLS ───────────────────────────────────────────────────────────
-function zoomIn(){svg.transition().duration(300).call(zoom.scaleBy,1.4)}
-function zoomOut(){svg.transition().duration(300).call(zoom.scaleBy,0.7)}
-function zoomReset(){
-  const W=gw(),H=gh();
-  svg.transition().duration(500).call(zoom.transform,d3.zoomIdentity.translate(W*.03,H*.03).scale(.86));
-}
-
-// ─── FULLSCREEN ──────────────────────────────────────────────────────────────
-function toggleFullscreen(){
-  const el=document.getElementById('graph-area');
-  const btn=document.getElementById('fs-btn');
-  if(!document.fullscreenElement){
-    (el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen).call(el);
-    if(btn)btn.textContent='✕';
-  } else {
-    (document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen).call(document);
-    if(btn)btn.textContent='⛶';
-  }
-}
-document.addEventListener('fullscreenchange',()=>{
-  const btn=document.getElementById('fs-btn');
-  if(btn)btn.textContent=document.fullscreenElement?'✕':'⛶';
-});
-
-// ─── MOBILE SIDEBAR ──────────────────────────────────────────────────────────
-function toggleMobSidebar(){
-  const sb=document.querySelector('.sidebar');
-  const ov=document.getElementById('sb-overlay');
-  const isOpen=sb.classList.toggle('open');
-  if(ov)ov.classList.toggle('vis',isOpen);
-  document.body.style.overflow=isOpen&&window.innerWidth<=800?'hidden':'';
-}
-
-</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ScholarlyArticle","name":"Atlas Relacional del Poder: Lujo Femenino, Élites e Influencia","author":{"@type":"Person","name":"Sharon Obando Delgado","url":"https://www.linkedin.com/in/sharon-obando-delgado-estratega-en-comunicacion-moda-imagen-poder","email":"sharonobandodelgado@gmail.com"},"publisher":{"@type":"Organization","name":"The Fashion Politics"},"description":"Análisis de redes sociales sobre la articulación entre marcas de lujo femenino colombiano y élites regionales","keywords":"moda lujo Colombia, redes poder, élites, Johanna Ortiz, Silvia Tcherassi, Francesca Miranda, SNA"}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
