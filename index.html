@@ -626,14 +626,6 @@ body.light .node text.node-subtitle{fill:rgba(0,0,0,0.65)!important;stroke:rgba(
             <div class="exp-left"><div class="exp-dot" style="background:var(--jo)"></div>Red Colombina completa</div>
             <span class="exp-badge">PNG</span>
           </div>
-          <div class="exp-item" onclick="exportJSON()">
-            <div class="exp-left"><div class="exp-dot" style="background:var(--gold)"></div>Datos completos</div>
-            <span class="exp-badge">JSON</span>
-          </div>
-          <div class="exp-item" onclick="exportCSV()">
-            <div class="exp-left"><div class="exp-dot" style="background:var(--gold)"></div>Nodos + aristas</div>
-            <span class="exp-badge">CSV</span>
-          </div>
         </div>
         <div style="font-size:8.5px;color:var(--muted2);margin-top:6px;line-height:1.5">Si el PNG falla, se descarga automáticamente como SVG (abre en Inkscape o navegador).</div>
       </div>
@@ -1393,31 +1385,6 @@ function restoreAfterExport(prev,wasLight){
     if(btn)btn.classList.add('active');
     render(prev);
   }
-}
-
-function exportJSON(){
-  const data={meta:{title:'Atlas Relacional del Poder: Lujo Femenino, Élites e Influencia',author:'Sharon Obando Delgado',platform:'The Fashion Politics',date:new Date().toISOString().slice(0,10),total_nodes:RAW_NODES.length,total_edges:RAW_EDGES.length},nodes:RAW_NODES,edges:RAW_EDGES};
-  const a=document.createElement('a');
-  a.download=`SharonObando_TheFashionPolitics_Atlas_${new Date().toISOString().slice(0,10)}.json`;
-  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
-  a.click();notify('✓ JSON descargado');
-}
-
-function exportCSV(){
-  let csv='Id,Label,Type,Designer,Region,Role,Degree_Est,Betweenness,CapSym,Source\n';
-  RAW_NODES.forEach(n=>{
-    const esc=v=>`"${String(v||'').replace(/"/g,'""')}"`;
-    csv+=`${esc(n.id)},${esc(n.label)},${esc(n.type)},${esc(n.designer)},${esc(n.region)},${esc(n.role)},${esc(n.degree_est)},${esc(n.bet_flag)},${esc(n.capsym)},${esc(n.source)}\n`;
-  });
-  csv+='\nSource,Target,Weight,Type,Designer\n';
-  RAW_EDGES.forEach(e=>{
-    const esc=v=>`"${String(v||'').replace(/"/g,'""')}"`;
-    csv+=`${esc(e.source)},${esc(e.target)},${e.weight},${esc(e.type)},${esc(e.designer)}\n`;
-  });
-  const a=document.createElement('a');
-  a.download=`SharonObando_TheFashionPolitics_Atlas_${new Date().toISOString().slice(0,10)}.csv`;
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.click();notify('✓ CSV descargado');
 }
 
 function copyEmail(el){
