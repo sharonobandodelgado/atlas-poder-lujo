@@ -1044,7 +1044,17 @@ function findPath(){
 // ─── EXPORT ──────────────────────────────────────────────────────────────────
 function notify(msg,type='success'){
   const n=document.getElementById('notify');n.textContent=msg;n.className=`notify show ${type}`;
-  setTimeout(()=>n.classList.remove('show'),3000);
+  setTimeout(()=>n.classList.remove('show'),4500);
+}
+
+// Detecta iOS/Safari: la descarga automática de blobs no es consistente en ese navegador,
+// así que ahí se informa al usuario cómo guardar la imagen manualmente en vez de asumir
+// que el diálogo de descarga se abrió solo.
+function isIOSSafari(){
+  const ua=navigator.userAgent;
+  const isIOS=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const isSafari=/^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+  return isIOS&&isSafari;
 }
 
 // Export helpers below
@@ -1266,7 +1276,8 @@ function _doExport(filter,cm,labels,prev,wasLight){
         a.href=URL.createObjectURL(b);
         document.body.appendChild(a);a.click();
         setTimeout(()=>{try{URL.revokeObjectURL(a.href);document.body.removeChild(a);}catch(e){}},600);
-        notify(`✓ PNG ${EXPORT_W*scale}×${EXPORT_H*scale}px descargado`);
+        if(isIOSSafari())notify('✓ Imagen lista: mantén presionada y elige "Guardar imagen"');
+        else notify(`✓ PNG ${EXPORT_W*scale}×${EXPORT_H*scale}px descargado`);
       }else{downloadSVG(svgStr,fname);}
     },'image/png',1.0);
     restoreAfterExport(prev,wasLight);
